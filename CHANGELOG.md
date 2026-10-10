@@ -58,3 +58,10 @@
 - JPEG export composites transparency against white; PNG remains lossless and unchanged.
 - Studio project ZIPs persist JPEG compression and remain compatible with older v1 archives.
 - Added localized settings and browser regression tests.
+
+### v01.1 — Settings button sizing refinement
+
+- Matched settings tabs and action buttons to the existing 13px editor controls with consistent padding and height.
+- Preserved the 565px settings dialog width, including four tabs in one row at standard desktop widths.
+- Retained responsive tab wrapping on narrow viewports; added DE/EN browser layout regression coverage.
+- JPEG export settings, annotation behavior and PNG/JPG export logic are unchanged.

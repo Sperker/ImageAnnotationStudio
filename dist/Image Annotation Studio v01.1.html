@@ -732,12 +732,29 @@ button:focus-visible,select:focus-visible,input:focus-visible,.tool-card:focus-v
   margin: 13px 0 17px;
 }
 
+
+#settingsTabs button,
+#settingsActions button {
+  font-size: 13px;
+  font-weight: 400;
+  line-height: normal;
+  padding: 8px 12px;
+  border-width: 1px;
+  border-style: solid;
+  border-radius: 4px;
+  min-width: 0;
+  width: auto;
+  white-space: nowrap;
+}
+
 #settingsTabs button {
-  font-size: 12px;
-  padding: 8px 10px;
   background: #ebedf3;
   color: #444;
-  border: 1px solid #d8dce7;
+  border-color: #d8dce7;
+}
+
+#settingsActions button {
+  border-color: transparent;
 }
 
 #settingsTabs button.selected {

@@ -79,6 +79,51 @@ class StudioRegression(unittest.TestCase):
         self.page.mouse.move(box['x']+x2,box['y']+y2,steps=6)
         self.page.mouse.up()
 
+    def test_settings_button_sizes_match_editor_without_widening_dialog(self):
+        """Tabs and actions use the established editor button typography and spacing."""
+        self.upload()
+        self.page.set_viewport_size({'width': 728, 'height': 800})
+        expected=self.page.locator('#standardBtn').evaluate('''(el) => {
+            const s=getComputedStyle(el);
+            return [s.fontSize,s.fontWeight,s.lineHeight,s.paddingTop,s.paddingRight,
+                    s.paddingBottom,s.paddingLeft,s.borderRadius,el.getBoundingClientRect().height];
+        }''')
+        for language in ['de', 'en']:
+            if language == 'en':
+                self.page.locator('#languageToggle').click()
+                self.page.locator('#languageMenu [data-language="en"]').click()
+            self.page.locator('#settingsButton').click()
+            for selector in ['#settingsTabs button', '#settingsSaveButton', '#settingsCancelButton', '#settingsResetButton']:
+                actual=self.page.locator(selector).first.evaluate('''(el) => {
+                    const s=getComputedStyle(el);
+                    return [s.fontSize,s.fontWeight,s.lineHeight,s.paddingTop,s.paddingRight,
+                            s.paddingBottom,s.paddingLeft,s.borderRadius,el.getBoundingClientRect().height];
+                }''')
+                self.assertEqual(actual,expected,selector)
+            geometry=self.page.evaluate('''() => {
+                const modal=document.querySelector('#settingsPopup').getBoundingClientRect();
+                const buttons=[...document.querySelectorAll('#settingsTabs button')].map(e=>e.getBoundingClientRect());
+                return {width:modal.width, left:modal.left, right:modal.right,
+                        topRow:buttons.every(b=>b.top===buttons[0].top),
+                        contained:buttons.every(b=>b.left>=modal.left+20 && b.right<=modal.right-20)};
+            }''')
+            self.assertEqual(geometry['width'],565)
+            self.assertTrue(geometry['topRow'],language)
+            self.assertTrue(geometry['contained'],language)
+            self.page.locator('#settingsCancelButton').click()
+
+        self.page.set_viewport_size({'width': 360, 'height': 800})
+        self.page.locator('#settingsButton').click()
+        geometry=self.page.evaluate('''() => {
+            const modal=document.querySelector('#settingsPopup').getBoundingClientRect();
+            const controls=[...document.querySelectorAll('#settingsTabs button, #settingsActions button')].map(e=>e.getBoundingClientRect());
+            return {left:modal.left,right:modal.right,
+                    contained:controls.every(b=>b.left>=modal.left && b.right<=modal.right)};
+        }''')
+        self.assertGreaterEqual(geometry['left'],0)
+        self.assertLessEqual(geometry['right'],360)
+        self.assertTrue(geometry['contained'])
+
     def test_initial_state_and_language(self):
         self.assertTrue(self.page.locator('#cont_drop_zone').is_visible())
         self.assertEqual(self.page.locator('#layerContainer').evaluate('(el)=>getComputedStyle(el).display'), 'none')
