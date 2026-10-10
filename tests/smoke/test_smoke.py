@@ -27,6 +27,7 @@ class Smoke(unittest.TestCase):
                     page.locator(f'[data-layer="{layer}"]').click()
                     self.assertEqual(page.evaluate('window.__studioTest.state.active'), layer)
                 self.assertTrue(page.locator('#downloadFlattenedImageBtn').is_visible())
+                self.assertTrue(page.locator('#downloadJpgBtn').is_visible())
                 self.assertEqual(errors, [])
                 self.assertEqual(requests, [])
             finally:

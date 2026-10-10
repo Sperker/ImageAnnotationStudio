@@ -21,7 +21,7 @@ On every normal invocation the batch file runs:
 3. Python smoke tests in **Chromium, Firefox, and WebKit**
 4. Python browser regression tests in **Chromium, Firefox, and WebKit**
 
-The generated offline application is `dist/Image Annotation Studio v01.0.html`.
+The generated offline application is `dist/Image Annotation Studio v01.1.html`.
 
 ## Failure behavior
 

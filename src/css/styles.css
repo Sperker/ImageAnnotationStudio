@@ -496,6 +496,19 @@ button:focus-visible,select:focus-visible,input:focus-visible,.tool-card:focus-v
   border-radius: 4px;
 }
 
+/* Native JPEG compression selector follows existing settings-field styling. */
+#settingsFields select {
+  width: min(190px, 42vw);
+  max-width: 100%;
+  height: 30px;
+  padding: 3px 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #fff;
+  color: #444;
+  font-size: 13px;
+}
+
 #settingsFields input[type=color] {
   width: 60px;
   padding: 2px;
@@ -929,6 +942,26 @@ button:focus-visible,select:focus-visible,input:focus-visible,.tool-card:focus-v
 
 /* Der Projekt-Button bleibt bewusst outlined; seine Maße sind dieselben. */
 
+
+/* Keep the two image-download buttons visually identical, including on narrow screens. */
+#imageExportButtons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+#downloadJpgBtn {
+  font-size: 13px;
+  font-weight: 400;
+  line-height: normal;
+  padding: 8px 12px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  min-width: 0;
+  width: auto;
+  white-space: nowrap;
+}
 
 /* ═══ 05 · Subsequent refinements and final design overrides ═══ */
 

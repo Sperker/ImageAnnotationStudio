@@ -55,6 +55,8 @@ test('image limits and defaults are stored in config',()=>{
   assert.equal(cfg.defaults.numbering.radius,20);
   assert.equal(cfg.defaults.arrows.width,100);
   assert.equal(cfg.defaults.roi.border,4);
+  assert.equal(cfg.jpeg.defaultCompression,'medium');
+  assert.deepEqual(cfg.jpeg.quality,{low:0.92,medium:0.8,high:0.6});
 });
 test('project ZIP import safety and original-resolution rendering remain present',()=>{
   const html=compiled();

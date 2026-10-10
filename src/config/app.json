@@ -49,5 +49,13 @@
     "MAX_PREVIEW_SIDE": 4096,
     "MAX_PREVIEW_PIXELS": 10000000,
     "MAX_EXPORT_PIXELS": 40000000
+  },
+  "jpeg": {
+    "defaultCompression": "medium",
+    "quality": {
+      "low": 0.92,
+      "medium": 0.8,
+      "high": 0.6
+    }
   }
 }

@@ -24,6 +24,8 @@ let js=await get('src/js/app.js');
 const injection={
   '__STUDIO_DEFAULTS__':config.defaults,
   '__STUDIO_PALETTE__':config.palette,
+  '__STUDIO_JPEG_QUALITIES__':config.jpeg.quality,
+  '__STUDIO_JPEG_DEFAULT__':config.jpeg.defaultCompression,
   '__STUDIO_TRANSLATIONS__':{de,en}
 };
 for (const [key,value] of Object.entries(config.limits)) injection[`__STUDIO_${key}__`]=value;

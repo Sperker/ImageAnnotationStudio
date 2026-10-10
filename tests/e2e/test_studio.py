@@ -1,5 +1,8 @@
 """Full-product offline browser regression. Run: npm run test:e2e."""
 import io
+import zipfile
+import json
+import base64
 import os
 import re
 import struct
@@ -271,6 +274,143 @@ class StudioRegression(unittest.TestCase):
         self.assertTrue(self.page.evaluate('() => {const ev=new Event("beforeunload",{cancelable:true});window.dispatchEvent(ev);return ev.defaultPrevented;}'))
         self.page.keyboard.press('Control+z')
         self.assertTrue(self.state('s.dirty'))
+
+    def test_jpg_and_png_buttons_export_original_dimensions(self):
+        self.upload()
+        self.assertTrue(self.page.locator('#downloadFlattenedImageBtn').is_visible())
+        self.assertTrue(self.page.locator('#downloadJpgBtn').is_visible())
+        self.page.locator('#timestampCheckbox').uncheck()
+        with self.page.expect_download() as png_event:
+            self.page.locator('#downloadFlattenedImageBtn').click()
+        with self.page.expect_download() as jpg_event:
+            self.page.locator('#downloadJpgBtn').click()
+        with tempfile.TemporaryDirectory() as temp:
+            png_path=Path(temp)/png_event.value.suggested_filename
+            jpg_path=Path(temp)/jpg_event.value.suggested_filename
+            png_event.value.save_as(png_path)
+            jpg_event.value.save_as(jpg_path)
+            png_data=png_path.read_bytes()
+            jpg_data=jpg_path.read_bytes()
+        self.assertTrue(png_path.name.endswith('_annotated.png'))
+        self.assertTrue(jpg_path.name.endswith('_annotated.jpg'))
+        self.assertEqual(png_data[:8], b'\x89PNG\r\n\x1a\n')
+        self.assertEqual(jpg_data[:3], b'\xff\xd8\xff')
+        self.assertEqual(struct.unpack('>II', png_data[16:24]),(640,400))
+        # Use the browser's JPEG decoder; confirms a valid image at native resolution.
+        jpg_base64=base64.b64encode(jpg_data).decode('ascii')
+        self.assertEqual(self.page.evaluate("""async data => {
+            const image=new Image();image.src='data:image/jpeg;base64,'+data;
+            await image.decode();return [image.naturalWidth,image.naturalHeight];
+        }""",jpg_base64),[640,400])
+
+    def test_jpeg_compression_settings_and_roi_export(self):
+        self.upload()
+        self.assertEqual(self.state('s.jpegCompression'),'medium')
+        self.page.locator('#settingsButton').click()
+        self.assertEqual(self.page.locator('#cfg_jpegCompression').input_value(),'medium')
+        self.assertEqual(self.page.locator('#cfg_jpegCompression option').count(),3)
+        self.page.locator('#cfg_jpegCompression').select_option('low')
+        self.page.locator('#settingsSaveButton').click()
+        self.assertEqual(self.state('s.jpegCompression'),'low')
+        # Capture the exact quality hint sent to the native JPEG encoder.
+        self.page.evaluate("""() => {
+          window.__jpegCalls=[];
+          const original=HTMLCanvasElement.prototype.toBlob;
+          HTMLCanvasElement.prototype.toBlob=function(callback,mime,quality){
+             window.__jpegCalls.push({mime,quality});return original.call(this,callback,mime,quality);
+          };
+        }""")
+        with self.page.expect_download():
+            self.page.locator('#downloadJpgBtn').click()
+        self.assertEqual(self.page.evaluate('window.__jpegCalls.at(-1)'),{'mime':'image/jpeg','quality':0.92})
+        self.page.locator('#settingsButton').click()
+        self.page.locator('#cfg_jpegCompression').select_option('high')
+        self.page.locator('#settingsSaveButton').click()
+        self.page.locator('[data-layer="roi"]').click()
+        self.drag_at(80,60,230,180)
+        self.assertTrue(self.page.locator('#exportCrop').is_enabled())
+        self.page.locator('#exportCrop').check()
+        with self.page.expect_download() as item:
+            self.page.locator('#downloadJpgBtn').click()
+        self.assertTrue(item.value.suggested_filename.endswith('_roi_annotated.jpg') is False)  # only one scope suffix
+        self.assertIn('_roi',item.value.suggested_filename)
+        self.assertEqual(self.page.evaluate('window.__jpegCalls.at(-1)'),{'mime':'image/jpeg','quality':0.6})
+        with tempfile.TemporaryDirectory() as temp:
+            path=Path(temp)/item.value.suggested_filename
+            item.value.save_as(path)
+            data=base64.b64encode(path.read_bytes()).decode('ascii')
+        dims=self.page.evaluate("""async data => {
+            const image=new Image();image.src='data:image/jpeg;base64,'+data;
+            await image.decode();return [image.naturalWidth,image.naturalHeight];
+        }""",data)
+        self.assertTrue(1<dims[0]<640 and 1<dims[1]<400)
+        self.page.locator('#settingsButton').click()
+        self.page.locator('#settingsResetButton').click()
+        self.assertEqual(self.page.locator('#cfg_jpegCompression').input_value(),'medium')
+        self.page.locator('#settingsSaveButton').click()
+        self.assertEqual(self.state('s.jpegCompression'),'medium')
+
+    def test_jpeg_compression_project_roundtrip_legacy_and_invalid(self):
+        self.upload()
+        self.page.locator('#settingsButton').click()
+        self.page.locator('#cfg_jpegCompression').select_option('high')
+        self.page.locator('#settingsSaveButton').click()
+        with self.page.expect_download() as item:
+            self.page.locator('#downloadProjectBtn').click()
+        with tempfile.TemporaryDirectory() as temp:
+            path=Path(temp)/'original.zip';item.value.save_as(path)
+            raw=path.read_bytes()
+        with zipfile.ZipFile(io.BytesIO(raw)) as z:
+            doc=json.loads(z.read('project.json'))
+            image_name=doc['image']['entry'];image_bytes=z.read(image_name)
+        self.assertEqual(doc['state']['export']['jpegCompression'],'high')
+        self.page.once('dialog',lambda d:d.accept())
+        self.page.locator('#newProjectButton').click()
+        self.page.locator('#fileInput').set_input_files({'name':'saved.zip','mimeType':'application/zip','buffer':raw})
+        self.page.wait_for_function('window.__studioTest.state.loaded')
+        self.assertEqual(self.state('s.jpegCompression'),'high')
+        self.page.locator('#settingsButton').click()
+        self.assertEqual(self.page.locator('#cfg_jpegCompression').input_value(),'high')
+        self.page.locator('#settingsCancelButton').click()
+        # Older version-1 ZIPs omit this optional setting; they must default to Medium.
+        old=json.loads(json.dumps(doc));del old['state']['export']['jpegCompression']
+        def repack(payload):
+            stream=io.BytesIO()
+            with zipfile.ZipFile(stream,'w',compression=zipfile.ZIP_STORED) as z:
+                z.writestr('project.json',json.dumps(payload))
+                z.writestr(image_name,image_bytes)
+            return stream.getvalue()
+        self.page.locator('#fileInput').set_input_files({'name':'old.zip','mimeType':'application/zip','buffer':repack(old)})
+        self.page.wait_for_function("window.__studioTest.state.jpegCompression === 'medium'")
+        # An unknown value must fail *without* replacing the open project.
+        invalid=json.loads(json.dumps(doc));invalid['state']['export']['jpegCompression']='extreme'
+        self.page.locator('#fileInput').set_input_files({'name':'invalid.zip','mimeType':'application/zip','buffer':repack(invalid)})
+        self.page.wait_for_timeout(300)
+        self.assertTrue(self.state('s.loaded'))
+        self.assertEqual(self.state('s.jpegCompression'),'medium')
+
+    def test_jpg_transparent_pixels_are_white(self):
+        self.upload()
+        # Reuse synthetic browser-generated transparent image (white comp under JPEG).
+        rgba=self.page.evaluate("""() => {
+            const c=document.createElement('canvas');c.width=32;c.height=24;
+            const ctx=c.getContext('2d');ctx.clearRect(0,0,32,24);
+            return c.toDataURL('image/png').split(',')[1];
+        }""")
+        self.page.locator('#fileInput').set_input_files({'name':'transparent.png','mimeType':'image/png','buffer':base64.b64decode(rgba)})
+        self.page.wait_for_function('window.__studioTest.state.img.naturalWidth === 32')
+        with self.page.expect_download() as item:
+            self.page.locator('#downloadJpgBtn').click()
+        with tempfile.TemporaryDirectory() as temp:
+            path=Path(temp)/'image.jpg';item.value.save_as(path)
+            data=base64.b64encode(path.read_bytes()).decode('ascii')
+        rgb=self.page.evaluate("""async data => {
+            const image=new Image();image.src='data:image/jpeg;base64,'+data;
+            await image.decode();const c=document.createElement('canvas');c.width=image.naturalWidth;c.height=image.naturalHeight;
+            const ctx=c.getContext('2d');ctx.drawImage(image,0,0);
+            return [...ctx.getImageData(15,12,1,1).data];
+        }""",data)
+        self.assertTrue(all(x>=246 for x in rgb[:3]),rgb)
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)

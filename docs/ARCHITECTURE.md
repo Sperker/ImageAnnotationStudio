@@ -9,7 +9,7 @@ src/js/app.js          → existing editor / rendering / import / export logic
 src/i18n/de.json       → German UI texts
 src/i18n/en.json       → English UI texts
 src/config/app.json    → numeric defaults, palette, image/canvas limits
-scripts/build.mjs      → builds dist/Image Annotation Studio v01.0.html
+scripts/build.mjs      → builds dist/Image Annotation Studio v01.1.html
 ```
 
 `npm run build` is dependency-free and deterministic: inject JSON literals and local CSS/JS into the HTML template. The resulting file works using `file://`, without HTTP requests, a server or any runtime packages. There is no template engine or framework. This is a **low-risk structural extraction** of the v0.9.1 release candidate, not a rewrite of the annotation engine.

@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <!-- Edit this value to set the build version and output filename. -->
-<meta name="studio-version" content="01.0">
-<title>Image Annotation Studio v01.0</title>
+<meta name="studio-version" content="01.1">
+<title>Image Annotation Studio v01.1</title>
 <style>
 
 
@@ -498,6 +498,19 @@ button:focus-visible,select:focus-visible,input:focus-visible,.tool-card:focus-v
   border-radius: 4px;
 }
 
+
+#settingsFields select {
+  width: min(190px, 42vw);
+  max-width: 100%;
+  height: 30px;
+  padding: 3px 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #fff;
+  color: #444;
+  font-size: 13px;
+}
+
 #settingsFields input[type=color] {
   width: 60px;
   padding: 2px;
@@ -932,6 +945,26 @@ button:focus-visible,select:focus-visible,input:focus-visible,.tool-card:focus-v
 
 
 
+#imageExportButtons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+#downloadJpgBtn {
+  font-size: 13px;
+  font-weight: 400;
+  line-height: normal;
+  padding: 8px 12px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  min-width: 0;
+  width: auto;
+  white-space: nowrap;
+}
+
+
 
 
 #download h3 {
@@ -971,7 +1004,7 @@ button:focus-visible,select:focus-visible,input:focus-visible,.tool-card:focus-v
   <div id="image_info"><span class="caption" data-t="imageLabel">Bild:</span> <span class="value" id="imageNameDisplay"></span> &nbsp;·&nbsp; <span class="caption" data-t="dimensions">Auflösung:</span> <span class="value" id="imageDimensions"></span></div>
   <span id="scaleFactorDisplay"></span>
 </section>
-<section id="download"><h3 data-t="exportHeading">Globaler Bildexport</h3><div id="downloadOptions"><label><input type="radio" name="exportScope" value="full" checked> <span data-t="exportFull">Gesamtes Bild</span></label><label id="exportCropOption" hidden><input type="radio" name="exportScope" value="crop" id="exportCrop" disabled> <span data-t="exportCrop">Nur ROI-Ausschnitt</span></label><label id="exportBorderOption" hidden><input type="checkbox" id="borderCheckboxROI" disabled> <span data-t="exportBorder">ROI-Rahmen hinzufügen</span></label><label><input type="checkbox" id="timestampCheckbox" checked> <span data-t="timestamp">Zeitstempel</span></label></div><div id="exportName"></div><div id="exportMeta" data-t="exportInfo">Nur sichtbare Annotationen, Originalauflösung</div><button id="downloadFlattenedImageBtn" data-t="download">PNG herunterladen</button><div id="projectExportRow"><button id="downloadProjectBtn" type="button" data-t="exportProject">Projekt als ZIP speichern</button><span data-t="projectHelp">Mit Originalbild, Einstellungen, Layern und vollständiger Undo-/Redo-Historie</span></div></section>
+<section id="download"><h3 data-t="exportHeading">Globaler Bildexport</h3><div id="downloadOptions"><label><input type="radio" name="exportScope" value="full" checked> <span data-t="exportFull">Gesamtes Bild</span></label><label id="exportCropOption" hidden><input type="radio" name="exportScope" value="crop" id="exportCrop" disabled> <span data-t="exportCrop">Nur ROI-Ausschnitt</span></label><label id="exportBorderOption" hidden><input type="checkbox" id="borderCheckboxROI" disabled> <span data-t="exportBorder">ROI-Rahmen hinzufügen</span></label><label><input type="checkbox" id="timestampCheckbox" checked> <span data-t="timestamp">Zeitstempel</span></label></div><div id="exportName"></div><div id="exportMeta" data-t="exportInfo">Nur sichtbare Annotationen, Originalauflösung</div><div id="imageExportButtons"><button id="downloadFlattenedImageBtn" data-t="download">PNG herunterladen</button><button id="downloadJpgBtn" type="button" data-t="downloadJpg">JPG herunterladen</button></div><div id="projectExportRow"><button id="downloadProjectBtn" type="button" data-t="exportProject">Projekt als ZIP speichern</button><span data-t="projectHelp">Mit Originalbild, Einstellungen, Layern und vollständiger Undo-/Redo-Historie</span></div></section>
 <footer id="bottom"><span data-t="footer">Undo/Redo je Werkzeug · Entf löscht die Auswahl ©2026 - Sperker.Training</span></footer>
 <div id="overlay"></div><div id="settingsPopup" role="dialog" aria-modal="true" aria-labelledby="settingsTitle"><h3 id="settingsTitle"></h3><div id="settingsTabs" role="tablist" aria-label="Settings areas"></div><div id="settingsFields"></div><div id="settingsActions"><button id="settingsResetButton" data-t="defaults">Standardwerte</button><button id="settingsSaveButton" data-t="save">Speichern</button><button id="settingsCancelButton" data-t="cancel">Abbrechen</button></div></div>
 <div id="status" role="status"></div>
@@ -987,7 +1020,10 @@ const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
 const defaults={"numbering":{"radius":20,"stroke":3,"fontSize":16,"standardStroke":"#111b42","standardFill":"#ffffff","standardText":"#111b42","invertedStroke":"#ffffff","invertedFill":"#111b42","invertedText":"#ffffff"},"arrows":{"stroke":3,"width":100,"height":50,"tail":0.4,"head":0.4,"standardStroke":"#033649","standardFill":"#ffffff","invertedStroke":"#ffffff","invertedFill":"#033649","handle":"#4964d0"},"roi":{"border":4,"borderColor":"#111b42","borderRadius":0,"highlight":"#4964d0","overlayColor":"#ffffff","overlayAlpha":0.9}};
 const defaultPalette={"standardStroke":"#111b42","standardFill":"#ffffff","standardText":"#111b42","invertedStroke":"#ffffff","invertedFill":"#111b42","invertedText":"#ffffff","handle":"#4964d0","roiOverlayColor":"#ffffff"};
 const names={numbering:'Numbering',arrows:'Arrows',roi:'ROI'};
-const state={loaded:false,img:null,sourceFile:null,name:'',palette:clone(defaultPalette),front:['arrows','numbering'],active:'arrows',visible:{arrows:true,numbering:true,roi:true},items:{arrows:[],numbering:[],roi:null},settings:clone(defaults),preferred:{arrows:1,numbering:1},ctrl:false,selection:{arrows:-1,numbering:-1},hist:{arrows:{undo:[],redo:[]},numbering:{undo:[],redo:[]},roi:{undo:[],redo:[]}},dirty:false,view:'full',scale:1,window:{x:0,y:0,w:1,h:1},pointer:null,hover:null,lang:'de'};
+
+const JPEG_QUALITY=Object.freeze({"low":0.92,"medium":0.8,"high":0.6});
+const DEFAULT_JPEG_COMPRESSION="medium";
+const state={loaded:false,img:null,sourceFile:null,name:'',palette:clone(defaultPalette),front:['arrows','numbering'],active:'arrows',visible:{arrows:true,numbering:true,roi:true},items:{arrows:[],numbering:[],roi:null},settings:clone(defaults),preferred:{arrows:1,numbering:1},ctrl:false,selection:{arrows:-1,numbering:-1},hist:{arrows:{undo:[],redo:[]},numbering:{undo:[],redo:[]},roi:{undo:[],redo:[]}},jpegCompression:DEFAULT_JPEG_COMPRESSION,dirty:false,view:'full',scale:1,window:{x:0,y:0,w:1,h:1},pointer:null,hover:null,lang:'de'};
 // Release safety: prevent silent loss of an unsaved working state.
 let toastTimer=0,saveRevision=0;
 
@@ -1017,7 +1053,7 @@ function imageFailureMessage(err){
 }
 
 function toast(msg){$('status').textContent=msg;$('status').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('status').classList.remove('show'),2900);}
-const translations={"de":{"subtitle":"Reibungslose Bildannotation - Zeigen. Nummerieren. Fokussieren.","dropHint":"Bild oder Image-Studio-Projekt (ZIP) hier ablegen oder","chooseImage":"Datei auswählen","layerHeading":"ZEICHEN-LAYER · VORNE → HINTEN · ROI UNABHÄNGIG","viewFull":"Gesamtansicht","viewCrop":"ROI-Ausschnitt anzeigen","imageLabel":"Bild:","dimensions":"Auflösung:","exportHeading":"Globaler Bildexport","exportFull":"Gesamtes Bild","exportCrop":"Nur ROI-Ausschnitt","exportBorder":"ROI-Rahmen hinzufügen","timestamp":"Zeitstempel","exportInfo":"Sichtbare Annotationen · Export in Originalauflösung","download":"PNG herunterladen","footer":"Undo/Redo je Werkzeug · Entf löscht die Auswahl ©2026 - Sperker.Training","defaults":"Standardwerte","save":"Speichern","cancel":"Abbrechen","reset":"Aktiven Layer leeren","settings":"Einstellungen","front":"Vorne","back":"Hinten","independent":"Ausschnitt · unabhängig","hidden":"Ausgeblendet","visible":"Sichtbar","drag":"Zum Umsortieren ziehen","ariaMove":"Layerposition tauschen","moveUp":"Reihenfolge wechseln","arrows":"Pfeile","numbering":"Nummern","roi":"ROI-Auswahl","editArrows":"Pfeile hinzufügen, verschieben oder an den Ecken drehen","editNumbering":"Klicken zum Nummerieren · Ziehen zum Verschieben · Entf zum Löschen","editRoi":"ROI ziehen; Ecken/Kanten verändern oder innerhalb verschieben","roiViewNote":"Zum Bearbeiten des ROI zur Gesamtansicht wechseln","hiddenEditing":"Ausgeblendeten Layer erst einblenden, um ihn zu bearbeiten","notAnImage":"Bitte eine unterstützte Bilddatei auswählen.","imageReplaced":"Neues Bild geladen: vorherige Bearbeitung zurückgesetzt.","noImage":"Zuerst ein Bild laden.","badCrop":"ROI liegt außerhalb des Bildes.","standard":"Standard","inverted":"Inverted","undo":"Undo","redo":"Redo","empty":"Aktiver Layer geleert","settingsTitle":"Einstellungen","confirmImage":"Neues Bild laden? Alle bisherigen Annotationen gehen verloren.","badSettings":"Bitte gültige Werte eingeben.","notSupported":"Bild konnte nicht geladen werden.","imageTooLarge":"Bild zu groß: maximal 65 MB, 16.384 Pixel je Seite und 40 Megapixel. Bitte verkleinern.","exportTooLarge":"PNG konnte nicht erzeugt werden. Der Ausschnitt ist zu groß oder der Browser hat zu wenig Speicher.","projectTooLarge":"Projekt-ZIP konnte nicht gespeichert werden (Größen- oder Speichergrenze).","newProject":"Neu","exportProject":"Image-Studio-Projekt (ZIP) speichern","projectHelp":"Originalbild, UI-Zustand und vollständige Undo-/Redo-Historie","resetLayer":"Diesen Layer leeren","swapLayers":"Zeichen-Layer tauschen","confirmNew":"Neues Projekt beginnen? Das aktuelle Bild und alle Bearbeitungsschritte gehen verloren.","importError":"Projektdatei konnte nicht eingelesen werden.","projectLoaded":"Projekt inklusive Historien wiederhergestellt.","projectSaved":"Projekt-ZIP erstellt.","globalTab":"Global · Farben","settingsTab":"Einstellungen","zipOnly":"Bitte ein Studio-Projekt-ZIP oder eine Bilddatei wählen."},"en":{"subtitle":"Zero-Friction Image Annotation - Point. Number. Focus.","dropHint":"Drop an image or Image Studio project (ZIP) here, or","chooseImage":"Choose file","layerHeading":"DRAWING LAYERS · FRONT → BACK · ROI INDEPENDENT","viewFull":"Full image","viewCrop":"Show ROI only","imageLabel":"Image:","dimensions":"Dimensions:","exportHeading":"Global image export","exportFull":"Full image","exportCrop":"ROI crop only","exportBorder":"Add ROI border","timestamp":"Timestamp","exportInfo":"Visible annotations · original-resolution export","download":"Download PNG","footer":"Undo/Redo per tool · Delete removes selection ©2026 - Sperker.Training","defaults":"Defaults","save":"Save","cancel":"Cancel","reset":"Clear active layer","settings":"Settings","front":"Front","back":"Back","independent":"Crop · independent","hidden":"Hidden","visible":"Visible","drag":"Drag to reorder","ariaMove":"Switch layer order","moveUp":"Swap order","arrows":"Arrows","numbering":"Numbering","roi":"ROI selection","editArrows":"Add or move arrows; rotate using a corner handle","editNumbering":"Click to number · drag to move · Delete to remove","editRoi":"Drag to set ROI; adjust edges/corners or move inside","roiViewNote":"Switch back to full view to edit ROI","hiddenEditing":"Show this hidden layer before editing it","notAnImage":"Please choose a supported image file.","imageReplaced":"New image loaded; previous edits cleared.","noImage":"Load an image first.","badCrop":"ROI is outside the image.","standard":"Standard","inverted":"Inverted","undo":"Undo","redo":"Redo","empty":"Active layer cleared","settingsTitle":"Settings","confirmImage":"Load another image? Existing annotations will be lost.","badSettings":"Enter valid values.","notSupported":"Could not load the image.","imageTooLarge":"Image too large: maximum 65 MB, 16,384 pixels per side and 40 megapixels. Please resize it.","exportTooLarge":"Unable to create PNG. The image is too large or browser memory is insufficient.","projectTooLarge":"Could not save project ZIP (size or memory limit).","newProject":"New","exportProject":"Save Image Studio project (ZIP)","projectHelp":"Original image, UI state and full Undo/Redo history","resetLayer":"Clear this layer","swapLayers":"Swap drawing layers","confirmNew":"Start a new project? All current edits and history will be lost.","importError":"Unable to open project file.","projectLoaded":"Project restored with complete history.","projectSaved":"Project ZIP generated.","globalTab":"Global · Colors","settingsTab":"Settings","zipOnly":"Please select an image or Studio project ZIP."}};
+const translations={"de":{"subtitle":"Reibungslose Bildannotation - Zeigen. Nummerieren. Fokussieren.","dropHint":"Bild oder Image-Studio-Projekt (ZIP) hier ablegen oder","chooseImage":"Datei auswählen","layerHeading":"ZEICHEN-LAYER · VORNE → HINTEN · ROI UNABHÄNGIG","viewFull":"Gesamtansicht","viewCrop":"ROI-Ausschnitt anzeigen","imageLabel":"Bild:","dimensions":"Auflösung:","exportHeading":"Globaler Bildexport","exportFull":"Gesamtes Bild","exportCrop":"Nur ROI-Ausschnitt","exportBorder":"ROI-Rahmen hinzufügen","timestamp":"Zeitstempel","exportInfo":"Sichtbare Annotationen · Export in Originalauflösung","download":"PNG herunterladen","footer":"Undo/Redo je Werkzeug · Entf löscht die Auswahl ©2026 - Sperker.Training","defaults":"Standardwerte","save":"Speichern","cancel":"Abbrechen","reset":"Aktiven Layer leeren","settings":"Einstellungen","front":"Vorne","back":"Hinten","independent":"Ausschnitt · unabhängig","hidden":"Ausgeblendet","visible":"Sichtbar","drag":"Zum Umsortieren ziehen","ariaMove":"Layerposition tauschen","moveUp":"Reihenfolge wechseln","arrows":"Pfeile","numbering":"Nummern","roi":"ROI-Auswahl","editArrows":"Pfeile hinzufügen, verschieben oder an den Ecken drehen","editNumbering":"Klicken zum Nummerieren · Ziehen zum Verschieben · Entf zum Löschen","editRoi":"ROI ziehen; Ecken/Kanten verändern oder innerhalb verschieben","roiViewNote":"Zum Bearbeiten des ROI zur Gesamtansicht wechseln","hiddenEditing":"Ausgeblendeten Layer erst einblenden, um ihn zu bearbeiten","notAnImage":"Bitte eine unterstützte Bilddatei auswählen.","imageReplaced":"Neues Bild geladen: vorherige Bearbeitung zurückgesetzt.","noImage":"Zuerst ein Bild laden.","badCrop":"ROI liegt außerhalb des Bildes.","standard":"Standard","inverted":"Inverted","undo":"Undo","redo":"Redo","empty":"Aktiver Layer geleert","settingsTitle":"Einstellungen","confirmImage":"Neues Bild laden? Alle bisherigen Annotationen gehen verloren.","badSettings":"Bitte gültige Werte eingeben.","notSupported":"Bild konnte nicht geladen werden.","imageTooLarge":"Bild zu groß: maximal 65 MB, 16.384 Pixel je Seite und 40 Megapixel. Bitte verkleinern.","exportTooLarge":"PNG konnte nicht erzeugt werden. Der Ausschnitt ist zu groß oder der Browser hat zu wenig Speicher.","projectTooLarge":"Projekt-ZIP konnte nicht gespeichert werden (Größen- oder Speichergrenze).","newProject":"Neu","exportProject":"Image-Studio-Projekt (ZIP) speichern","projectHelp":"Originalbild, UI-Zustand und vollständige Undo-/Redo-Historie","resetLayer":"Diesen Layer leeren","swapLayers":"Zeichen-Layer tauschen","confirmNew":"Neues Projekt beginnen? Das aktuelle Bild und alle Bearbeitungsschritte gehen verloren.","importError":"Projektdatei konnte nicht eingelesen werden.","projectLoaded":"Projekt inklusive Historien wiederhergestellt.","projectSaved":"Projekt-ZIP erstellt.","globalTab":"Global · Farben & Export","settingsTab":"Einstellungen","zipOnly":"Bitte ein Studio-Projekt-ZIP oder eine Bilddatei wählen.","downloadJpg":"JPG herunterladen","jpegCompression":"JPEG-Komprimierung","jpegLow":"Niedrig (höchste Qualität)","jpegMedium":"Mittel (Standard)","jpegHigh":"Hoch (kleinere Datei)","jpegExportError":"JPG konnte nicht erzeugt werden. Der Ausschnitt ist zu groß oder der Browser hat zu wenig Speicher."},"en":{"subtitle":"Zero-Friction Image Annotation - Point. Number. Focus.","dropHint":"Drop an image or Image Studio project (ZIP) here, or","chooseImage":"Choose file","layerHeading":"DRAWING LAYERS · FRONT → BACK · ROI INDEPENDENT","viewFull":"Full image","viewCrop":"Show ROI only","imageLabel":"Image:","dimensions":"Dimensions:","exportHeading":"Global image export","exportFull":"Full image","exportCrop":"ROI crop only","exportBorder":"Add ROI border","timestamp":"Timestamp","exportInfo":"Visible annotations · original-resolution export","download":"Download PNG","footer":"Undo/Redo per tool · Delete removes selection ©2026 - Sperker.Training","defaults":"Defaults","save":"Save","cancel":"Cancel","reset":"Clear active layer","settings":"Settings","front":"Front","back":"Back","independent":"Crop · independent","hidden":"Hidden","visible":"Visible","drag":"Drag to reorder","ariaMove":"Switch layer order","moveUp":"Swap order","arrows":"Arrows","numbering":"Numbering","roi":"ROI selection","editArrows":"Add or move arrows; rotate using a corner handle","editNumbering":"Click to number · drag to move · Delete to remove","editRoi":"Drag to set ROI; adjust edges/corners or move inside","roiViewNote":"Switch back to full view to edit ROI","hiddenEditing":"Show this hidden layer before editing it","notAnImage":"Please choose a supported image file.","imageReplaced":"New image loaded; previous edits cleared.","noImage":"Load an image first.","badCrop":"ROI is outside the image.","standard":"Standard","inverted":"Inverted","undo":"Undo","redo":"Redo","empty":"Active layer cleared","settingsTitle":"Settings","confirmImage":"Load another image? Existing annotations will be lost.","badSettings":"Enter valid values.","notSupported":"Could not load the image.","imageTooLarge":"Image too large: maximum 65 MB, 16,384 pixels per side and 40 megapixels. Please resize it.","exportTooLarge":"Unable to create PNG. The image is too large or browser memory is insufficient.","projectTooLarge":"Could not save project ZIP (size or memory limit).","newProject":"New","exportProject":"Save Image Studio project (ZIP)","projectHelp":"Original image, UI state and full Undo/Redo history","resetLayer":"Clear this layer","swapLayers":"Swap drawing layers","confirmNew":"Start a new project? All current edits and history will be lost.","importError":"Unable to open project file.","projectLoaded":"Project restored with complete history.","projectSaved":"Project ZIP generated.","globalTab":"Global · Colors & Export","settingsTab":"Settings","zipOnly":"Please select an image or Studio project ZIP.","downloadJpg":"Download JPG","jpegCompression":"JPEG compression","jpegLow":"Low (highest quality)","jpegMedium":"Medium (default)","jpegHigh":"High (smaller file)","jpegExportError":"Unable to create JPG. The image is too large or browser memory is insufficient."}};
 
 function t(k){return translations[state.lang][k]||k}
 
@@ -1109,7 +1145,7 @@ $('borderCheckboxROI').addEventListener('change',markDirty);
 
 function timestamp(){const d=new Date(),p=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}_${p(d.getHours())}-${p(d.getMinutes())}-${p(d.getSeconds())}`;}
 
-function filename(){const base=(state.name.replace(/\.[^.]*$/,'')||'edited-image').replace(/[\\/\u0000-\u001f]/g,'_');const suffix=$('exportCrop').checked?'_roi':'_annotated';return base+suffix+($('timestampCheckbox').checked?'_'+timestamp():'')+'.png';}
+function filename(extension='png'){const base=(state.name.replace(/\.[^.]*$/,'')||'edited-image').replace(/[\\/\u0000-\u001f]/g,'_');const suffix=$('exportCrop').checked?'_roi':'_annotated';return base+suffix+($('timestampCheckbox').checked?'_'+timestamp():'')+'.'+extension;}
 
 function updateFilename(){$('exportName').textContent=state.loaded?filename():'';}
 
@@ -1174,23 +1210,36 @@ let settingDraft=null,settingTab='global';
 
 function renderSettingsTabs(){const tabs=$('settingsTabs');tabs.replaceChildren();for(const id of ['global','arrows','numbering','roi']){const b=document.createElement('button');b.type='button';b.textContent=id==='global'?t('globalTab'):t(id);b.classList.toggle('selected',id===settingTab);b.setAttribute('role','tab');b.setAttribute('aria-selected',String(id===settingTab));b.onclick=()=>{if(!collectSettingsDraft())return;settingTab=id;renderSettingsTabs();renderSettingsFields();};tabs.append(b);}}
 
-function renderSettingsFields(){const fields=$('settingsFields');fields.replaceChildren();const draft=settingTab==='global'?settingDraft.palette:settingDraft.settings[settingTab];for(const [key,label,type,min,max,step] of fieldDefs[settingTab]){const lab=document.createElement('label');lab.setAttribute('for','cfg_'+key);lab.textContent=label;const inp=document.createElement('input');inp.id='cfg_'+key;inp.dataset.key=key;inp.type=type;inp.value=draft[key];if(type==='number'){inp.min=String(min);inp.max=String(max);inp.step=String(step);}fields.append(lab,inp);}}
+function renderSettingsFields(){const fields=$('settingsFields');fields.replaceChildren();const draft=settingTab==='global'?settingDraft.palette:settingDraft.settings[settingTab];for(const [key,label,type,min,max,step] of fieldDefs[settingTab]){const lab=document.createElement('label');lab.setAttribute('for','cfg_'+key);lab.textContent=label;const inp=document.createElement('input');inp.id='cfg_'+key;inp.dataset.key=key;inp.type=type;inp.value=draft[key];if(type==='number'){inp.min=String(min);inp.max=String(max);inp.step=String(step);}fields.append(lab,inp);}
+ if(settingTab==='global'){
+  const lab=document.createElement('label');lab.setAttribute('for','cfg_jpegCompression');lab.textContent=t('jpegCompression');
+  const select=document.createElement('select');select.id='cfg_jpegCompression';select.dataset.key='jpegCompression';
+  for(const level of ['low','medium','high']){const option=document.createElement('option');option.value=level;option.textContent=t('jpeg'+level[0].toUpperCase()+level.slice(1));select.append(option);}
+  select.value=settingDraft.jpegCompression;
+  fields.append(lab,select);
+ }
+}
 
-function collectSettingsDraft(){if(!settingDraft)return false;const target=settingTab==='global'?settingDraft.palette:settingDraft.settings[settingTab];for(const [key,,type,min,max] of fieldDefs[settingTab]){const el=$('cfg_'+key),value=el.value;if(type==='number'){const n=Number(value);if(!value.trim()||!Number.isFinite(n)||n<min||n>max){toast(t('badSettings'));el.focus();return false;}target[key]=n;}else{if(!/^#[a-fA-F0-9]{6}$/.test(value)){toast(t('badSettings'));el.focus();return false;}target[key]=value;}}return true;}
+function collectSettingsDraft(){if(!settingDraft)return false;const target=settingTab==='global'?settingDraft.palette:settingDraft.settings[settingTab];for(const [key,,type,min,max] of fieldDefs[settingTab]){const el=$('cfg_'+key),value=el.value;if(type==='number'){const n=Number(value);if(!value.trim()||!Number.isFinite(n)||n<min||n>max){toast(t('badSettings'));el.focus();return false;}target[key]=n;}else{if(!/^#[a-fA-F0-9]{6}$/.test(value)){toast(t('badSettings'));el.focus();return false;}target[key]=value;}}if(settingTab==='global'){
+  const level=$('cfg_jpegCompression').value;
+  if(!Object.hasOwn(JPEG_QUALITY,level)){toast(t('badSettings'));$('cfg_jpegCompression').focus();return false;}
+  settingDraft.jpegCompression=level;
+ }
+ return true;}
 
-function openSettings(){if(!state.loaded){toast(t('noImage'));return;}settingDraft={palette:clone(state.palette),settings:clone(state.settings)};settingTab='global';$('settingsTitle').textContent=t('settingsTitle');renderSettingsTabs();renderSettingsFields();$('overlay').style.display='block';$('settingsPopup').style.display='block';$('settingsSaveButton').focus();}
+function openSettings(){if(!state.loaded){toast(t('noImage'));return;}settingDraft={palette:clone(state.palette),settings:clone(state.settings),jpegCompression:state.jpegCompression};settingTab='global';$('settingsTitle').textContent=t('settingsTitle');renderSettingsTabs();renderSettingsFields();$('overlay').style.display='block';$('settingsPopup').style.display='block';$('settingsSaveButton').focus();}
 
 function closeSettings(){settingDraft=null;$('overlay').style.display='none';$('settingsPopup').style.display='none';$('settingsButton').focus();}
 $('settingsButton').onclick=openSettings;$('settingsCancelButton').onclick=closeSettings;
-$('settingsResetButton').onclick=()=>{if(!settingDraft)return;if(settingTab==='global')settingDraft.palette=clone(defaultPalette);else settingDraft.settings[settingTab]=clone(defaults[settingTab]);renderSettingsFields();};
-$('settingsSaveButton').onclick=()=>{if(!collectSettingsDraft())return;const before={arrows:capture('arrows'),numbering:capture('numbering'),roi:capture('roi')};if(JSON.stringify(state.palette)!==JSON.stringify(settingDraft.palette)||JSON.stringify(state.settings)!==JSON.stringify(settingDraft.settings))markDirty();state.palette=clone(settingDraft.palette);state.settings=clone(settingDraft.settings);for(const id of ['arrows','numbering','roi'])record(id,before[id]);closeSettings();refreshToolbar();paint();};
+$('settingsResetButton').onclick=()=>{if(!settingDraft)return;if(settingTab==='global'){settingDraft.palette=clone(defaultPalette);settingDraft.jpegCompression=DEFAULT_JPEG_COMPRESSION;}else settingDraft.settings[settingTab]=clone(defaults[settingTab]);renderSettingsFields();};
+$('settingsSaveButton').onclick=()=>{if(!collectSettingsDraft())return;const before={arrows:capture('arrows'),numbering:capture('numbering'),roi:capture('roi')};if(JSON.stringify(state.palette)!==JSON.stringify(settingDraft.palette)||JSON.stringify(state.settings)!==JSON.stringify(settingDraft.settings)||state.jpegCompression!==settingDraft.jpegCompression)markDirty();state.palette=clone(settingDraft.palette);state.settings=clone(settingDraft.settings);state.jpegCompression=settingDraft.jpegCompression;for(const id of ['arrows','numbering','roi'])record(id,before[id]);closeSettings();refreshToolbar();paint();};
 $('overlay').onclick=closeSettings;
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('settingsPopup').style.display==='block'){e.preventDefault();closeSettings();}});
 // Images and project ZIPs can be dropped or selected. No network access is required.
 
 function defaultHistory(){return {arrows:{undo:[],redo:[]},numbering:{undo:[],redo:[]},roi:{undo:[],redo:[]}};}
 
-function resetToInitial(){cancelPointer();state.loaded=false;state.img=null;state.sourceFile=null;state.name='';state.palette=clone(defaultPalette);state.settings=clone(defaults);state.front=['arrows','numbering'];state.active='arrows';state.visible={arrows:true,numbering:true,roi:true};state.items={arrows:[],numbering:[],roi:null};state.hist=defaultHistory();state.dirty=false;state.selection={arrows:-1,numbering:-1};state.preferred={arrows:1,numbering:1};state.ctrl=false;state.hover=null;state.pointer=null;state.view='full';state.baseScale=1;$('fileInput').value='';$('cont_drop_zone').style.display='block';$('layerContainer').style.display='none';$('image').style.display='none';$('download').style.display='none';document.querySelector('input[name=view][value=full]').checked=true;document.querySelector('input[name=exportScope][value=full]').checked=true;$('borderCheckboxROI').checked=false;$('timestampCheckbox').checked=true;refreshLanguage();updateROIOptions();}
+function resetToInitial(){cancelPointer();state.loaded=false;state.img=null;state.sourceFile=null;state.name='';state.palette=clone(defaultPalette);state.settings=clone(defaults);state.jpegCompression=DEFAULT_JPEG_COMPRESSION;state.front=['arrows','numbering'];state.active='arrows';state.visible={arrows:true,numbering:true,roi:true};state.items={arrows:[],numbering:[],roi:null};state.hist=defaultHistory();state.dirty=false;state.selection={arrows:-1,numbering:-1};state.preferred={arrows:1,numbering:1};state.ctrl=false;state.hover=null;state.pointer=null;state.view='full';state.baseScale=1;$('fileInput').value='';$('cont_drop_zone').style.display='block';$('layerContainer').style.display='none';$('image').style.display='none';$('download').style.display='none';document.querySelector('input[name=view][value=full]').checked=true;document.querySelector('input[name=exportScope][value=full]').checked=true;$('borderCheckboxROI').checked=false;$('timestampCheckbox').checked=true;refreshLanguage();updateROIOptions();}
 $('newProjectButton').onclick=()=>{if(state.loaded&&!window.confirm(t('confirmNew')))return;resetToInitial();};
 
 function openFilePicker(){$('fileInput').click();}
@@ -1256,18 +1305,21 @@ async function loadFile(file){
 function roundedBorder(context,x,y,w,h,r,lineWidth,color){context.save();roundedPath(context,x,y,w,h,r);context.lineWidth=lineWidth;context.strokeStyle=color;context.stroke();context.restore();}
 
 function downloadBlob(blob,name){const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000);}
-$('downloadFlattenedImageBtn').onclick=async()=>{
+
+async function exportImage(format){
  if(!state.loaded)return;
- const button=$('downloadFlattenedImageBtn');button.disabled=true;
+ const jpeg=format==='jpg';
+ const button=$(jpeg?'downloadJpgBtn':'downloadFlattenedImageBtn');
+ button.disabled=true;
  try{
   const roi=state.visible.roi?validRoi():null,crop=$('exportCrop').checked&&!!roi;
   const win=crop?roi:{x:0,y:0,...imageDims()};
   const border=crop&&$('borderCheckboxROI').checked?state.settings.roi.border/state.baseScale:0;
   const width=Math.max(1,Math.round(win.w+border)),height=Math.max(1,Math.round(win.h+border));
-  if(!Number.isSafeInteger(width)||!Number.isSafeInteger(height)||width>MAX_IMAGE_SIDE||height>MAX_IMAGE_SIDE||width*height>MAX_EXPORT_PIXELS)throw new Error('PNG export size limit');
+  if(!Number.isSafeInteger(width)||!Number.isSafeInteger(height)||width>MAX_IMAGE_SIDE||height>MAX_IMAGE_SIDE||width*height>MAX_EXPORT_PIXELS)throw new Error('Image export size limit');
   const exportCanvas=document.createElement('canvas');exportCanvas.width=width;exportCanvas.height=height;
-  if(exportCanvas.width!==width||exportCanvas.height!==height)throw new Error('PNG canvas allocation failed');
-  const out=exportCanvas.getContext('2d');if(!out)throw new Error('PNG canvas context unavailable');
+  if(exportCanvas.width!==width||exportCanvas.height!==height)throw new Error('Canvas allocation failed');
+  const out=exportCanvas.getContext('2d');if(!out)throw new Error('Canvas context unavailable');
   if(border){
    out.save();out.translate(border/2,border/2);roundedPath(out,0,0,win.w,win.h,state.settings.roi.borderRadius/state.baseScale);out.clip();render(out,win,{scale:1,crop:true});out.restore();
    roundedBorder(out,border/2,border/2,win.w,win.h,state.settings.roi.borderRadius/state.baseScale,border,state.palette.standardStroke);
@@ -1275,12 +1327,21 @@ $('downloadFlattenedImageBtn').onclick=async()=>{
    out.save();if(crop&&state.settings.roi.borderRadius){roundedPath(out,0,0,win.w,win.h,state.settings.roi.borderRadius/state.baseScale);out.clip();}
    render(out,win,{scale:1,crop});out.restore();
   }
-  const blob=await new Promise((resolve,reject)=>exportCanvas.toBlob(b=>b?resolve(b):reject(new Error('PNG encoder returned empty data')),'image/png'));
-  if(!blob.size)throw new Error('PNG encoder returned empty data');
-  updateFilename();downloadBlob(blob,filename());
- }catch(err){console.error('PNG export failed:',err);toast(t('exportTooLarge'));}
+  if(jpeg){
+   // JPEG does not support transparency. Put white *behind* image pixels;
+   // no second full-resolution canvas is needed.
+   out.save();out.globalCompositeOperation='destination-over';out.fillStyle='#ffffff';out.fillRect(0,0,width,height);out.restore();
+  }
+  const mime=jpeg?'image/jpeg':'image/png';
+  const quality=jpeg?JPEG_QUALITY[state.jpegCompression]:undefined;
+  const blob=await new Promise((resolve,reject)=>exportCanvas.toBlob(b=>b?resolve(b):reject(new Error('Image encoder returned empty data')),mime,quality));
+  if(!blob.size||blob.type!==mime)throw new Error('Unsupported or empty image output');
+  downloadBlob(blob,filename(jpeg?'jpg':'png'));
+ }catch(err){console.error((jpeg?'JPEG':'PNG')+' export failed:',err);toast(t(jpeg?'jpegExportError':'exportTooLarge'));}
  finally{button.disabled=false;}
-};
+}
+$('downloadFlattenedImageBtn').onclick=()=>exportImage('png');
+$('downloadJpgBtn').onclick=()=>exportImage('jpg');
 // Image Studio Project ZIP v1. Pure JS ZIP/STORE, with CRC-32 and no external libraries.
 // The ZIP contains project.json plus the original image's exact original bytes.
 const enc=new TextEncoder(),dec=new TextDecoder('utf-8',{fatal:true});
@@ -1305,9 +1366,9 @@ function validItems(id,items){if(id==='roi')return items===null||(items&&['x','y
 
 function validSnap(id,snap){return snap&&validItems(id,snap.items)&&snap.settings&&fieldDefs[id].every(([k,,type,min,max])=>type==='number'?validFinite(snap.settings[k])&&snap.settings[k]>=min&&snap.settings[k]<=max:true);}
 
-function validateProject(p,files){if(!p||p.format!=='ImageAnnotationStudio'||p.version!==1||!p.image||!p.state)throw new Error('Unknown project format');const im=p.image,x=p.state;if(typeof im.entry!=='string'||!/^original\.[a-zA-Z0-9]+$/.test(im.entry)||!files.has(im.entry)||typeof im.filename!=='string'||im.filename.length>255||!/^image\//.test(im.mime)||!validFinite(im.width)||!validFinite(im.height)||im.width<1||im.height<1)throw new Error('Invalid image metadata');checkImageSize(im.width,im.height,files.get(im.entry).length);if(!Array.isArray(x.front)||x.front.length!==2||x.front[0]===x.front[1]||!x.front.includes('arrows')||!x.front.includes('numbering'))throw new Error('Bad layer order');if(!names[x.active]||!x.visible||!['arrows','numbering','roi'].every(k=>typeof x.visible[k]==='boolean'))throw new Error('Bad layers');if(!x.items||!['arrows','numbering','roi'].every(k=>validItems(k,x.items[k])))throw new Error('Bad annotations');if(!validSettings(x.settings))throw new Error('Bad settings');if(!x.palette||!fieldDefs.global.every(([key])=>typeof x.palette[key]==='string'&&/^#[a-fA-F0-9]{6}$/.test(x.palette[key])))throw new Error('Bad palette');if(!x.preferred||!['arrows','numbering'].every(k=>x.preferred[k]===1||x.preferred[k]===2))throw new Error('Bad style');if(!x.hist||!['arrows','numbering','roi'].every(k=>x.hist[k]&&['undo','redo'].every(dir=>Array.isArray(x.hist[k][dir])&&x.hist[k][dir].length<=100&&x.hist[k][dir].every(s=>validSnap(k,s)))))throw new Error('Bad history');if(!x.selection||!['arrows','numbering'].every(k=>Number.isInteger(x.selection[k])&&x.selection[k]>=-1&&x.selection[k]<x.items[k].length))throw new Error('Bad selection');if(!validFinite(x.baseScale)||x.baseScale<=0||x.baseScale>10)throw new Error('Bad scale');if(!['full','crop'].includes(x.view)||!x.export||!['full','crop'].includes(x.export.scope)||typeof x.export.border!=='boolean'||typeof x.export.timestamp!=='boolean')throw new Error('Bad viewport');if(!['de','en','hu'].includes(x.lang))throw new Error('Bad locale');}
+function validateProject(p,files){if(!p||p.format!=='ImageAnnotationStudio'||p.version!==1||!p.image||!p.state)throw new Error('Unknown project format');const im=p.image,x=p.state;if(typeof im.entry!=='string'||!/^original\.[a-zA-Z0-9]+$/.test(im.entry)||!files.has(im.entry)||typeof im.filename!=='string'||im.filename.length>255||!/^image\//.test(im.mime)||!validFinite(im.width)||!validFinite(im.height)||im.width<1||im.height<1)throw new Error('Invalid image metadata');checkImageSize(im.width,im.height,files.get(im.entry).length);if(!Array.isArray(x.front)||x.front.length!==2||x.front[0]===x.front[1]||!x.front.includes('arrows')||!x.front.includes('numbering'))throw new Error('Bad layer order');if(!names[x.active]||!x.visible||!['arrows','numbering','roi'].every(k=>typeof x.visible[k]==='boolean'))throw new Error('Bad layers');if(!x.items||!['arrows','numbering','roi'].every(k=>validItems(k,x.items[k])))throw new Error('Bad annotations');if(!validSettings(x.settings))throw new Error('Bad settings');if(!x.palette||!fieldDefs.global.every(([key])=>typeof x.palette[key]==='string'&&/^#[a-fA-F0-9]{6}$/.test(x.palette[key])))throw new Error('Bad palette');if(!x.preferred||!['arrows','numbering'].every(k=>x.preferred[k]===1||x.preferred[k]===2))throw new Error('Bad style');if(!x.hist||!['arrows','numbering','roi'].every(k=>x.hist[k]&&['undo','redo'].every(dir=>Array.isArray(x.hist[k][dir])&&x.hist[k][dir].length<=100&&x.hist[k][dir].every(s=>validSnap(k,s)))))throw new Error('Bad history');if(!x.selection||!['arrows','numbering'].every(k=>Number.isInteger(x.selection[k])&&x.selection[k]>=-1&&x.selection[k]<x.items[k].length))throw new Error('Bad selection');if(!validFinite(x.baseScale)||x.baseScale<=0||x.baseScale>10)throw new Error('Bad scale');if(!['full','crop'].includes(x.view)||!x.export||!['full','crop'].includes(x.export.scope)||typeof x.export.border!=='boolean'||typeof x.export.timestamp!=='boolean'||(x.export.jpegCompression!==undefined&&!Object.hasOwn(JPEG_QUALITY,x.export.jpegCompression)))throw new Error('Bad viewport');if(!['de','en','hu'].includes(x.lang))throw new Error('Bad locale');}
 
-function projectSnapshot(){return {format:'ImageAnnotationStudio',version:1,exportedAt:new Date().toISOString(),image:{entry:'',filename:state.name,mime:state.sourceFile.type,width:state.img.naturalWidth,height:state.img.naturalHeight},state:{front:clone(state.front),active:state.active,visible:clone(state.visible),items:clone(state.items),hist:clone(state.hist),selection:clone(state.selection),preferred:clone(state.preferred),settings:clone(state.settings),palette:clone(state.palette),baseScale:state.baseScale,view:state.view,lang:state.lang,export:{scope:document.querySelector('input[name=exportScope]:checked').value,border:$('borderCheckboxROI').checked,timestamp:$('timestampCheckbox').checked}}};}
+function projectSnapshot(){return {format:'ImageAnnotationStudio',version:1,exportedAt:new Date().toISOString(),image:{entry:'',filename:state.name,mime:state.sourceFile.type,width:state.img.naturalWidth,height:state.img.naturalHeight},state:{front:clone(state.front),active:state.active,visible:clone(state.visible),items:clone(state.items),hist:clone(state.hist),selection:clone(state.selection),preferred:clone(state.preferred),settings:clone(state.settings),palette:clone(state.palette),baseScale:state.baseScale,view:state.view,lang:state.lang,export:{scope:document.querySelector('input[name=exportScope]:checked').value,border:$('borderCheckboxROI').checked,timestamp:$('timestampCheckbox').checked,jpegCompression:state.jpegCompression}}};}
 $('downloadProjectBtn').onclick=async()=>{if(!state.loaded||!state.sourceFile)return;const button=$('downloadProjectBtn');button.disabled=true;try{const startedRevision=saveRevision;if(state.sourceFile.size>65*1024*1024)throw new Error('Image too large');const data=new Uint8Array(await state.sourceFile.arrayBuffer()),doc=projectSnapshot();const ext=/\.[a-zA-Z0-9]+$/.exec(state.name)?.[0]?.slice(1).toLowerCase()||'png';doc.image.entry='original.'+ext;const json=enc.encode(JSON.stringify(doc,null,2));if(json.length>12*1024*1024)throw new Error('Project history too large');const zip=createZip([{name:'project.json',data:json},{name:doc.image.entry,data}]);downloadBlob(zip,(state.name.replace(/\.[^.]+$/,'')||'image')+'_image-studio.zip');if(startedRevision===saveRevision)state.dirty=false;toast(t('projectSaved'));}catch(err){console.error('Project ZIP failed:',err);toast(t('projectTooLarge'));}finally{button.disabled=false;}};
 
 async function importProject(file){
@@ -1327,7 +1388,7 @@ async function importProject(file){
   commitImage(prepared);
   state.front=clone(x.front);state.active=x.active;state.visible=clone(x.visible);
   state.items=clone(x.items);state.hist=clone(x.hist);state.selection=clone(x.selection);
-  state.preferred=clone(x.preferred);state.settings=clone(x.settings);state.palette=clone(x.palette);
+  state.preferred=clone(x.preferred);state.settings=clone(x.settings);state.palette=clone(x.palette);state.jpegCompression=x.export.jpegCompression??DEFAULT_JPEG_COMPRESSION;
   state.baseScale=x.baseScale;state.lang=x.lang==='en'?'en':'de';$('languageSelect').value=state.lang;
   $('timestampCheckbox').checked=x.export.timestamp;updateROIOptions();
   state.view=x.view==='crop'&&state.visible.roi&&validRoi()?'crop':'full';

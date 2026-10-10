@@ -11,4 +11,4 @@
 - [ ] Review dependency and browser security advisories
 - [ ] Final tag `v1.0.0` after release qualification
 
-The git repository contains a versioned release-candidate baseline, not a claim that 1.0 is already certified. Users run `dist/Image Annotation Studio v01.0.html` directly.
+The git repository contains a versioned release-candidate baseline, not a claim that 1.0 is already certified. Users run `dist/Image Annotation Studio v01.1.html` directly.

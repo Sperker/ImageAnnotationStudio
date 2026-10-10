@@ -20,7 +20,7 @@ original.png  # or original.jpg etc., determined by the original filename
 | `state.settings`, `state.palette` | Tool options and global colors |
 | `state.baseScale`, `state.view` | Initial layout scale / current image view |
 | `state.lang` | UI language (DE/EN; older HU projects fall back to DE) |
-| `state.export` | Export scope, optional ROI frame and timestamp option |
+| `state.export` | Export scope, optional ROI frame, timestamp, and JPEG compression (`low`, `medium`, `high`; optional for legacy v1 files, default `medium`) |
 
 ### Compatibility
 

@@ -61,7 +61,13 @@
   "importError": "Unable to open project file.",
   "projectLoaded": "Project restored with complete history.",
   "projectSaved": "Project ZIP generated.",
-  "globalTab": "Global · Colors",
+  "globalTab": "Global · Colors & Export",
   "settingsTab": "Settings",
-  "zipOnly": "Please select an image or Studio project ZIP."
+  "zipOnly": "Please select an image or Studio project ZIP.",
+  "downloadJpg": "Download JPG",
+  "jpegCompression": "JPEG compression",
+  "jpegLow": "Low (highest quality)",
+  "jpegMedium": "Medium (default)",
+  "jpegHigh": "High (smaller file)",
+  "jpegExportError": "Unable to create JPG. The image is too large or browser memory is insufficient."
 }

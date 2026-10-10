@@ -29,7 +29,10 @@ const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
 const defaults=__STUDIO_DEFAULTS__;
 const defaultPalette=__STUDIO_PALETTE__;
 const names={numbering:'Numbering',arrows:'Arrows',roi:'ROI'};
-const state={loaded:false,img:null,sourceFile:null,name:'',palette:clone(defaultPalette),front:['arrows','numbering'],active:'arrows',visible:{arrows:true,numbering:true,roi:true},items:{arrows:[],numbering:[],roi:null},settings:clone(defaults),preferred:{arrows:1,numbering:1},ctrl:false,selection:{arrows:-1,numbering:-1},hist:{arrows:{undo:[],redo:[]},numbering:{undo:[],redo:[]},roi:{undo:[],redo:[]}},dirty:false,view:'full',scale:1,window:{x:0,y:0,w:1,h:1},pointer:null,hover:null,lang:'de'};
+/** JPEG encoder quality values by compression level (lower compression means higher quality). */
+const JPEG_QUALITY=Object.freeze(__STUDIO_JPEG_QUALITIES__);
+const DEFAULT_JPEG_COMPRESSION=__STUDIO_JPEG_DEFAULT__;
+const state={loaded:false,img:null,sourceFile:null,name:'',palette:clone(defaultPalette),front:['arrows','numbering'],active:'arrows',visible:{arrows:true,numbering:true,roi:true},items:{arrows:[],numbering:[],roi:null},settings:clone(defaults),preferred:{arrows:1,numbering:1},ctrl:false,selection:{arrows:-1,numbering:-1},hist:{arrows:{undo:[],redo:[]},numbering:{undo:[],redo:[]},roi:{undo:[],redo:[]}},jpegCompression:DEFAULT_JPEG_COMPRESSION,dirty:false,view:'full',scale:1,window:{x:0,y:0,w:1,h:1},pointer:null,hover:null,lang:'de'};
 // Release safety: prevent silent loss of an unsaved working state.
 let toastTimer=0,saveRevision=0;
 /**
@@ -265,7 +268,7 @@ function timestamp(){const d=new Date(),p=n=>String(n).padStart(2,'0');return `$
  * Handle the filename operation in the studio.
  * @returns {*} Result of the operation.
  */
-function filename(){const base=(state.name.replace(/\.[^.]*$/,'')||'edited-image').replace(/[\\/\u0000-\u001f]/g,'_');const suffix=$('exportCrop').checked?'_roi':'_annotated';return base+suffix+($('timestampCheckbox').checked?'_'+timestamp():'')+'.png';}
+function filename(extension='png'){const base=(state.name.replace(/\.[^.]*$/,'')||'edited-image').replace(/[\\/\u0000-\u001f]/g,'_');const suffix=$('exportCrop').checked?'_roi':'_annotated';return base+suffix+($('timestampCheckbox').checked?'_'+timestamp():'')+'.'+extension;}
 /**
  * Handle the update filename operation in the studio.
  */
@@ -418,23 +421,36 @@ function renderSettingsTabs(){const tabs=$('settingsTabs');tabs.replaceChildren(
  * Handle the render settings fields operation in the studio.
  * @returns {*} Result of the operation.
  */
-function renderSettingsFields(){const fields=$('settingsFields');fields.replaceChildren();const draft=settingTab==='global'?settingDraft.palette:settingDraft.settings[settingTab];for(const [key,label,type,min,max,step] of fieldDefs[settingTab]){const lab=document.createElement('label');lab.setAttribute('for','cfg_'+key);lab.textContent=label;const inp=document.createElement('input');inp.id='cfg_'+key;inp.dataset.key=key;inp.type=type;inp.value=draft[key];if(type==='number'){inp.min=String(min);inp.max=String(max);inp.step=String(step);}fields.append(lab,inp);}}
+function renderSettingsFields(){const fields=$('settingsFields');fields.replaceChildren();const draft=settingTab==='global'?settingDraft.palette:settingDraft.settings[settingTab];for(const [key,label,type,min,max,step] of fieldDefs[settingTab]){const lab=document.createElement('label');lab.setAttribute('for','cfg_'+key);lab.textContent=label;const inp=document.createElement('input');inp.id='cfg_'+key;inp.dataset.key=key;inp.type=type;inp.value=draft[key];if(type==='number'){inp.min=String(min);inp.max=String(max);inp.step=String(step);}fields.append(lab,inp);}
+ if(settingTab==='global'){
+  const lab=document.createElement('label');lab.setAttribute('for','cfg_jpegCompression');lab.textContent=t('jpegCompression');
+  const select=document.createElement('select');select.id='cfg_jpegCompression';select.dataset.key='jpegCompression';
+  for(const level of ['low','medium','high']){const option=document.createElement('option');option.value=level;option.textContent=t('jpeg'+level[0].toUpperCase()+level.slice(1));select.append(option);}
+  select.value=settingDraft.jpegCompression;
+  fields.append(lab,select);
+ }
+}
 /**
  * Handle the collect settings draft operation in the studio.
  * @returns {*} Result of the operation.
  */
-function collectSettingsDraft(){if(!settingDraft)return false;const target=settingTab==='global'?settingDraft.palette:settingDraft.settings[settingTab];for(const [key,,type,min,max] of fieldDefs[settingTab]){const el=$('cfg_'+key),value=el.value;if(type==='number'){const n=Number(value);if(!value.trim()||!Number.isFinite(n)||n<min||n>max){toast(t('badSettings'));el.focus();return false;}target[key]=n;}else{if(!/^#[a-fA-F0-9]{6}$/.test(value)){toast(t('badSettings'));el.focus();return false;}target[key]=value;}}return true;}
+function collectSettingsDraft(){if(!settingDraft)return false;const target=settingTab==='global'?settingDraft.palette:settingDraft.settings[settingTab];for(const [key,,type,min,max] of fieldDefs[settingTab]){const el=$('cfg_'+key),value=el.value;if(type==='number'){const n=Number(value);if(!value.trim()||!Number.isFinite(n)||n<min||n>max){toast(t('badSettings'));el.focus();return false;}target[key]=n;}else{if(!/^#[a-fA-F0-9]{6}$/.test(value)){toast(t('badSettings'));el.focus();return false;}target[key]=value;}}if(settingTab==='global'){
+  const level=$('cfg_jpegCompression').value;
+  if(!Object.hasOwn(JPEG_QUALITY,level)){toast(t('badSettings'));$('cfg_jpegCompression').focus();return false;}
+  settingDraft.jpegCompression=level;
+ }
+ return true;}
 /**
  * Handle the open settings operation in the studio.
  */
-function openSettings(){if(!state.loaded){toast(t('noImage'));return;}settingDraft={palette:clone(state.palette),settings:clone(state.settings)};settingTab='global';$('settingsTitle').textContent=t('settingsTitle');renderSettingsTabs();renderSettingsFields();$('overlay').style.display='block';$('settingsPopup').style.display='block';$('settingsSaveButton').focus();}
+function openSettings(){if(!state.loaded){toast(t('noImage'));return;}settingDraft={palette:clone(state.palette),settings:clone(state.settings),jpegCompression:state.jpegCompression};settingTab='global';$('settingsTitle').textContent=t('settingsTitle');renderSettingsTabs();renderSettingsFields();$('overlay').style.display='block';$('settingsPopup').style.display='block';$('settingsSaveButton').focus();}
 /**
  * Handle the close settings operation in the studio.
  */
 function closeSettings(){settingDraft=null;$('overlay').style.display='none';$('settingsPopup').style.display='none';$('settingsButton').focus();}
 $('settingsButton').onclick=openSettings;$('settingsCancelButton').onclick=closeSettings;
-$('settingsResetButton').onclick=()=>{if(!settingDraft)return;if(settingTab==='global')settingDraft.palette=clone(defaultPalette);else settingDraft.settings[settingTab]=clone(defaults[settingTab]);renderSettingsFields();};
-$('settingsSaveButton').onclick=()=>{if(!collectSettingsDraft())return;const before={arrows:capture('arrows'),numbering:capture('numbering'),roi:capture('roi')};if(JSON.stringify(state.palette)!==JSON.stringify(settingDraft.palette)||JSON.stringify(state.settings)!==JSON.stringify(settingDraft.settings))markDirty();state.palette=clone(settingDraft.palette);state.settings=clone(settingDraft.settings);for(const id of ['arrows','numbering','roi'])record(id,before[id]);closeSettings();refreshToolbar();paint();};
+$('settingsResetButton').onclick=()=>{if(!settingDraft)return;if(settingTab==='global'){settingDraft.palette=clone(defaultPalette);settingDraft.jpegCompression=DEFAULT_JPEG_COMPRESSION;}else settingDraft.settings[settingTab]=clone(defaults[settingTab]);renderSettingsFields();};
+$('settingsSaveButton').onclick=()=>{if(!collectSettingsDraft())return;const before={arrows:capture('arrows'),numbering:capture('numbering'),roi:capture('roi')};if(JSON.stringify(state.palette)!==JSON.stringify(settingDraft.palette)||JSON.stringify(state.settings)!==JSON.stringify(settingDraft.settings)||state.jpegCompression!==settingDraft.jpegCompression)markDirty();state.palette=clone(settingDraft.palette);state.settings=clone(settingDraft.settings);state.jpegCompression=settingDraft.jpegCompression;for(const id of ['arrows','numbering','roi'])record(id,before[id]);closeSettings();refreshToolbar();paint();};
 $('overlay').onclick=closeSettings;
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('settingsPopup').style.display==='block'){e.preventDefault();closeSettings();}});
 // Images and project ZIPs can be dropped or selected. No network access is required.
@@ -446,7 +462,7 @@ function defaultHistory(){return {arrows:{undo:[],redo:[]},numbering:{undo:[],re
 /**
  * Handle the reset to initial operation in the studio.
  */
-function resetToInitial(){cancelPointer();state.loaded=false;state.img=null;state.sourceFile=null;state.name='';state.palette=clone(defaultPalette);state.settings=clone(defaults);state.front=['arrows','numbering'];state.active='arrows';state.visible={arrows:true,numbering:true,roi:true};state.items={arrows:[],numbering:[],roi:null};state.hist=defaultHistory();state.dirty=false;state.selection={arrows:-1,numbering:-1};state.preferred={arrows:1,numbering:1};state.ctrl=false;state.hover=null;state.pointer=null;state.view='full';state.baseScale=1;$('fileInput').value='';$('cont_drop_zone').style.display='block';$('layerContainer').style.display='none';$('image').style.display='none';$('download').style.display='none';document.querySelector('input[name=view][value=full]').checked=true;document.querySelector('input[name=exportScope][value=full]').checked=true;$('borderCheckboxROI').checked=false;$('timestampCheckbox').checked=true;refreshLanguage();updateROIOptions();}
+function resetToInitial(){cancelPointer();state.loaded=false;state.img=null;state.sourceFile=null;state.name='';state.palette=clone(defaultPalette);state.settings=clone(defaults);state.jpegCompression=DEFAULT_JPEG_COMPRESSION;state.front=['arrows','numbering'];state.active='arrows';state.visible={arrows:true,numbering:true,roi:true};state.items={arrows:[],numbering:[],roi:null};state.hist=defaultHistory();state.dirty=false;state.selection={arrows:-1,numbering:-1};state.preferred={arrows:1,numbering:1};state.ctrl=false;state.hover=null;state.pointer=null;state.view='full';state.baseScale=1;$('fileInput').value='';$('cont_drop_zone').style.display='block';$('layerContainer').style.display='none';$('image').style.display='none';$('download').style.display='none';document.querySelector('input[name=view][value=full]').checked=true;document.querySelector('input[name=exportScope][value=full]').checked=true;$('borderCheckboxROI').checked=false;$('timestampCheckbox').checked=true;refreshLanguage();updateROIOptions();}
 $('newProjectButton').onclick=()=>{if(state.loaded&&!window.confirm(t('confirmNew')))return;resetToInitial();};
 /**
  * Handle the open file picker operation in the studio.
@@ -546,18 +562,27 @@ function roundedBorder(context,x,y,w,h,r,lineWidth,color){context.save();rounded
  * @returns {*} Result of the operation.
  */
 function downloadBlob(blob,name){const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000);}
-$('downloadFlattenedImageBtn').onclick=async()=>{
+/**
+ * Export visible annotation layers at original-image resolution.
+ * JPEG uses the same compositing path as PNG, then fills transparent pixels
+ * behind the rendered image with white before lossy encoding.
+ * @param {'png'|'jpg'} format - Output format.
+ * @returns {Promise<void>}
+ */
+async function exportImage(format){
  if(!state.loaded)return;
- const button=$('downloadFlattenedImageBtn');button.disabled=true;
+ const jpeg=format==='jpg';
+ const button=$(jpeg?'downloadJpgBtn':'downloadFlattenedImageBtn');
+ button.disabled=true;
  try{
   const roi=state.visible.roi?validRoi():null,crop=$('exportCrop').checked&&!!roi;
   const win=crop?roi:{x:0,y:0,...imageDims()};
   const border=crop&&$('borderCheckboxROI').checked?state.settings.roi.border/state.baseScale:0;
   const width=Math.max(1,Math.round(win.w+border)),height=Math.max(1,Math.round(win.h+border));
-  if(!Number.isSafeInteger(width)||!Number.isSafeInteger(height)||width>MAX_IMAGE_SIDE||height>MAX_IMAGE_SIDE||width*height>MAX_EXPORT_PIXELS)throw new Error('PNG export size limit');
+  if(!Number.isSafeInteger(width)||!Number.isSafeInteger(height)||width>MAX_IMAGE_SIDE||height>MAX_IMAGE_SIDE||width*height>MAX_EXPORT_PIXELS)throw new Error('Image export size limit');
   const exportCanvas=document.createElement('canvas');exportCanvas.width=width;exportCanvas.height=height;
-  if(exportCanvas.width!==width||exportCanvas.height!==height)throw new Error('PNG canvas allocation failed');
-  const out=exportCanvas.getContext('2d');if(!out)throw new Error('PNG canvas context unavailable');
+  if(exportCanvas.width!==width||exportCanvas.height!==height)throw new Error('Canvas allocation failed');
+  const out=exportCanvas.getContext('2d');if(!out)throw new Error('Canvas context unavailable');
   if(border){
    out.save();out.translate(border/2,border/2);roundedPath(out,0,0,win.w,win.h,state.settings.roi.borderRadius/state.baseScale);out.clip();render(out,win,{scale:1,crop:true});out.restore();
    roundedBorder(out,border/2,border/2,win.w,win.h,state.settings.roi.borderRadius/state.baseScale,border,state.palette.standardStroke);
@@ -565,12 +590,21 @@ $('downloadFlattenedImageBtn').onclick=async()=>{
    out.save();if(crop&&state.settings.roi.borderRadius){roundedPath(out,0,0,win.w,win.h,state.settings.roi.borderRadius/state.baseScale);out.clip();}
    render(out,win,{scale:1,crop});out.restore();
   }
-  const blob=await new Promise((resolve,reject)=>exportCanvas.toBlob(b=>b?resolve(b):reject(new Error('PNG encoder returned empty data')),'image/png'));
-  if(!blob.size)throw new Error('PNG encoder returned empty data');
-  updateFilename();downloadBlob(blob,filename());
- }catch(err){console.error('PNG export failed:',err);toast(t('exportTooLarge'));}
+  if(jpeg){
+   // JPEG does not support transparency. Put white *behind* image pixels;
+   // no second full-resolution canvas is needed.
+   out.save();out.globalCompositeOperation='destination-over';out.fillStyle='#ffffff';out.fillRect(0,0,width,height);out.restore();
+  }
+  const mime=jpeg?'image/jpeg':'image/png';
+  const quality=jpeg?JPEG_QUALITY[state.jpegCompression]:undefined;
+  const blob=await new Promise((resolve,reject)=>exportCanvas.toBlob(b=>b?resolve(b):reject(new Error('Image encoder returned empty data')),mime,quality));
+  if(!blob.size||blob.type!==mime)throw new Error('Unsupported or empty image output');
+  downloadBlob(blob,filename(jpeg?'jpg':'png'));
+ }catch(err){console.error((jpeg?'JPEG':'PNG')+' export failed:',err);toast(t(jpeg?'jpegExportError':'exportTooLarge'));}
  finally{button.disabled=false;}
-};
+}
+$('downloadFlattenedImageBtn').onclick=()=>exportImage('png');
+$('downloadJpgBtn').onclick=()=>exportImage('jpg');
 // Image Studio Project ZIP v1. Pure JS ZIP/STORE, with CRC-32 and no external libraries.
 // The ZIP contains project.json plus the original image's exact original bytes.
 const enc=new TextEncoder(),dec=new TextDecoder('utf-8',{fatal:true});
@@ -642,12 +676,12 @@ function validSnap(id,snap){return snap&&validItems(id,snap.items)&&snap.setting
  * @param {*} files - Input for this operation.
  * @returns {*} Result of the operation.
  */
-function validateProject(p,files){if(!p||p.format!=='ImageAnnotationStudio'||p.version!==1||!p.image||!p.state)throw new Error('Unknown project format');const im=p.image,x=p.state;if(typeof im.entry!=='string'||!/^original\.[a-zA-Z0-9]+$/.test(im.entry)||!files.has(im.entry)||typeof im.filename!=='string'||im.filename.length>255||!/^image\//.test(im.mime)||!validFinite(im.width)||!validFinite(im.height)||im.width<1||im.height<1)throw new Error('Invalid image metadata');checkImageSize(im.width,im.height,files.get(im.entry).length);if(!Array.isArray(x.front)||x.front.length!==2||x.front[0]===x.front[1]||!x.front.includes('arrows')||!x.front.includes('numbering'))throw new Error('Bad layer order');if(!names[x.active]||!x.visible||!['arrows','numbering','roi'].every(k=>typeof x.visible[k]==='boolean'))throw new Error('Bad layers');if(!x.items||!['arrows','numbering','roi'].every(k=>validItems(k,x.items[k])))throw new Error('Bad annotations');if(!validSettings(x.settings))throw new Error('Bad settings');if(!x.palette||!fieldDefs.global.every(([key])=>typeof x.palette[key]==='string'&&/^#[a-fA-F0-9]{6}$/.test(x.palette[key])))throw new Error('Bad palette');if(!x.preferred||!['arrows','numbering'].every(k=>x.preferred[k]===1||x.preferred[k]===2))throw new Error('Bad style');if(!x.hist||!['arrows','numbering','roi'].every(k=>x.hist[k]&&['undo','redo'].every(dir=>Array.isArray(x.hist[k][dir])&&x.hist[k][dir].length<=100&&x.hist[k][dir].every(s=>validSnap(k,s)))))throw new Error('Bad history');if(!x.selection||!['arrows','numbering'].every(k=>Number.isInteger(x.selection[k])&&x.selection[k]>=-1&&x.selection[k]<x.items[k].length))throw new Error('Bad selection');if(!validFinite(x.baseScale)||x.baseScale<=0||x.baseScale>10)throw new Error('Bad scale');if(!['full','crop'].includes(x.view)||!x.export||!['full','crop'].includes(x.export.scope)||typeof x.export.border!=='boolean'||typeof x.export.timestamp!=='boolean')throw new Error('Bad viewport');if(!['de','en','hu'].includes(x.lang))throw new Error('Bad locale');}
+function validateProject(p,files){if(!p||p.format!=='ImageAnnotationStudio'||p.version!==1||!p.image||!p.state)throw new Error('Unknown project format');const im=p.image,x=p.state;if(typeof im.entry!=='string'||!/^original\.[a-zA-Z0-9]+$/.test(im.entry)||!files.has(im.entry)||typeof im.filename!=='string'||im.filename.length>255||!/^image\//.test(im.mime)||!validFinite(im.width)||!validFinite(im.height)||im.width<1||im.height<1)throw new Error('Invalid image metadata');checkImageSize(im.width,im.height,files.get(im.entry).length);if(!Array.isArray(x.front)||x.front.length!==2||x.front[0]===x.front[1]||!x.front.includes('arrows')||!x.front.includes('numbering'))throw new Error('Bad layer order');if(!names[x.active]||!x.visible||!['arrows','numbering','roi'].every(k=>typeof x.visible[k]==='boolean'))throw new Error('Bad layers');if(!x.items||!['arrows','numbering','roi'].every(k=>validItems(k,x.items[k])))throw new Error('Bad annotations');if(!validSettings(x.settings))throw new Error('Bad settings');if(!x.palette||!fieldDefs.global.every(([key])=>typeof x.palette[key]==='string'&&/^#[a-fA-F0-9]{6}$/.test(x.palette[key])))throw new Error('Bad palette');if(!x.preferred||!['arrows','numbering'].every(k=>x.preferred[k]===1||x.preferred[k]===2))throw new Error('Bad style');if(!x.hist||!['arrows','numbering','roi'].every(k=>x.hist[k]&&['undo','redo'].every(dir=>Array.isArray(x.hist[k][dir])&&x.hist[k][dir].length<=100&&x.hist[k][dir].every(s=>validSnap(k,s)))))throw new Error('Bad history');if(!x.selection||!['arrows','numbering'].every(k=>Number.isInteger(x.selection[k])&&x.selection[k]>=-1&&x.selection[k]<x.items[k].length))throw new Error('Bad selection');if(!validFinite(x.baseScale)||x.baseScale<=0||x.baseScale>10)throw new Error('Bad scale');if(!['full','crop'].includes(x.view)||!x.export||!['full','crop'].includes(x.export.scope)||typeof x.export.border!=='boolean'||typeof x.export.timestamp!=='boolean'||(x.export.jpegCompression!==undefined&&!Object.hasOwn(JPEG_QUALITY,x.export.jpegCompression)))throw new Error('Bad viewport');if(!['de','en','hu'].includes(x.lang))throw new Error('Bad locale');}
 /**
  * Serialize the application state including all independent undo/redo histories.
  * @returns {*} Result of the operation.
  */
-function projectSnapshot(){return {format:'ImageAnnotationStudio',version:1,exportedAt:new Date().toISOString(),image:{entry:'',filename:state.name,mime:state.sourceFile.type,width:state.img.naturalWidth,height:state.img.naturalHeight},state:{front:clone(state.front),active:state.active,visible:clone(state.visible),items:clone(state.items),hist:clone(state.hist),selection:clone(state.selection),preferred:clone(state.preferred),settings:clone(state.settings),palette:clone(state.palette),baseScale:state.baseScale,view:state.view,lang:state.lang,export:{scope:document.querySelector('input[name=exportScope]:checked').value,border:$('borderCheckboxROI').checked,timestamp:$('timestampCheckbox').checked}}};}
+function projectSnapshot(){return {format:'ImageAnnotationStudio',version:1,exportedAt:new Date().toISOString(),image:{entry:'',filename:state.name,mime:state.sourceFile.type,width:state.img.naturalWidth,height:state.img.naturalHeight},state:{front:clone(state.front),active:state.active,visible:clone(state.visible),items:clone(state.items),hist:clone(state.hist),selection:clone(state.selection),preferred:clone(state.preferred),settings:clone(state.settings),palette:clone(state.palette),baseScale:state.baseScale,view:state.view,lang:state.lang,export:{scope:document.querySelector('input[name=exportScope]:checked').value,border:$('borderCheckboxROI').checked,timestamp:$('timestampCheckbox').checked,jpegCompression:state.jpegCompression}}};}
 $('downloadProjectBtn').onclick=async()=>{if(!state.loaded||!state.sourceFile)return;const button=$('downloadProjectBtn');button.disabled=true;try{const startedRevision=saveRevision;if(state.sourceFile.size>65*1024*1024)throw new Error('Image too large');const data=new Uint8Array(await state.sourceFile.arrayBuffer()),doc=projectSnapshot();const ext=/\.[a-zA-Z0-9]+$/.exec(state.name)?.[0]?.slice(1).toLowerCase()||'png';doc.image.entry='original.'+ext;const json=enc.encode(JSON.stringify(doc,null,2));if(json.length>12*1024*1024)throw new Error('Project history too large');const zip=createZip([{name:'project.json',data:json},{name:doc.image.entry,data}]);downloadBlob(zip,(state.name.replace(/\.[^.]+$/,'')||'image')+'_image-studio.zip');if(startedRevision===saveRevision)state.dirty=false;toast(t('projectSaved'));}catch(err){console.error('Project ZIP failed:',err);toast(t('projectTooLarge'));}finally{button.disabled=false;}};
 /**
  * Load and validate an archive, then commit the complete project atomically.
@@ -671,7 +705,7 @@ async function importProject(file){
   commitImage(prepared);
   state.front=clone(x.front);state.active=x.active;state.visible=clone(x.visible);
   state.items=clone(x.items);state.hist=clone(x.hist);state.selection=clone(x.selection);
-  state.preferred=clone(x.preferred);state.settings=clone(x.settings);state.palette=clone(x.palette);
+  state.preferred=clone(x.preferred);state.settings=clone(x.settings);state.palette=clone(x.palette);state.jpegCompression=x.export.jpegCompression??DEFAULT_JPEG_COMPRESSION;
   state.baseScale=x.baseScale;state.lang=x.lang==='en'?'en':'de';$('languageSelect').value=state.lang;
   $('timestampCheckbox').checked=x.export.timestamp;updateROIOptions();
   state.view=x.view==='crop'&&state.visible.roi&&validRoi()?'crop':'full';

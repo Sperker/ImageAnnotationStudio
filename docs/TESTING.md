@@ -33,7 +33,7 @@ The CI matrix runs Chromium, Firefox and WebKit on Linux. **WebKit/Linux is not 
 5. Change Standard/Inverted and temporarily invert using Ctrl, including releasing Ctrl outside canvas.
 6. Hide and reorder layers; compare pixel output with visible UI, excluding handles and shadows.
 7. Switch DE/EN; check small-screen layout, keyboard shortcuts and disabled buttons.
-8. Export PNG in original resolution; save ZIP, start new project, restore ZIP including a pending Redo step.
+8. Export PNG/JPG in original resolution; verify all three JPEG quality settings and transparent-pixel handling; save ZIP, start new project, restore ZIP including a pending Redo step.
 9. Close/reload with unsaved changes and confirm warning; saved projects should not trigger it.
 10. Verify no network requests, and no bundled credentials or external dependencies.
 
@@ -49,7 +49,7 @@ The smoke suite checks startup, offline operation, image upload, tool switching,
 
 ## Added release-risk checks (October 2026)
 
-The automated regression suite now includes **11 browser scenarios**, plus **5 Node unit tests** and **1 smoke scenario**. Newly added checks cover:
+The automated regression suite now includes **15 browser scenarios**, plus **6 Node unit tests** and **1 smoke scenario**. JPEG scenarios cover native file signatures/size, ROI export, selected quality hints, white matte, and persistence/legacy compatibility. Newly added checks cover:
 
 - Keyboard activation of a layer, language-menu focus, arrow navigation and Escape.
 - Layer reorder, hide, per-layer reset and Undo isolation.

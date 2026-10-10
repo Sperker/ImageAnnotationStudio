@@ -7,7 +7,7 @@
 - `src/js/app.js` — editor state, pointer interactions, drawing, history, ZIP and PNG handling.
 - `src/i18n/{en,de}.json` — user-facing strings only.
 - `src/config/app.json` — defaults, color values, image limits.
-- `scripts/build.mjs` — assembles a self-contained `dist/Image Annotation Studio v01.0.html`.
+- `scripts/build.mjs` — assembles a self-contained `dist/Image Annotation Studio v01.1.html`.
 - `tests/` — unit, smoke and browser regression suites.
 
 ## Behavioral invariants
@@ -41,3 +41,7 @@ Use JSDoc for contracts, data structures, side effects, and non-obvious failure 
 ## Testing limitations
 
 Green functional scenarios are not a line/branch coverage percentage. Before a cross-browser release, run Firefox/WebKit CI and verify real Safari on macOS. Include confidential-free, realistically large documentation screenshots in manual tests.
+
+## JPEG export invariant
+
+The JPG button uses the same renderer and original-resolution canvas as PNG. Preserve PNG byte output when modifying the encoder path. Because JPEG has no alpha channel, render a white matte using `destination-over` after annotations and ROI are drawn. Keep JPEG quality settings independent of per-tool undo history; persist them in `state.export` with a default for older project ZIPs.

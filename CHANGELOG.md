@@ -50,3 +50,11 @@
 - Credited Google Material Icons / Material Symbols as the source of UI icon artwork.
 - Clarified Apache-2.0 icon licensing alongside the project MIT license and bundled the license text.
 - No changes to application code or output behavior.
+
+## v01.1 — JPEG export
+
+- Added a JPG download alongside PNG, using the same native-resolution render and ROI settings.
+- JPEG compression levels: Low (quality 0.92), Medium (0.80, default), High (0.60).
+- JPEG export composites transparency against white; PNG remains lossless and unchanged.
+- Studio project ZIPs persist JPEG compression and remain compatible with older v1 archives.
+- Added localized settings and browser regression tests.

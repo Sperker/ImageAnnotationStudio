@@ -61,7 +61,13 @@
   "importError": "Projektdatei konnte nicht eingelesen werden.",
   "projectLoaded": "Projekt inklusive Historien wiederhergestellt.",
   "projectSaved": "Projekt-ZIP erstellt.",
-  "globalTab": "Global · Farben",
+  "globalTab": "Global · Farben & Export",
   "settingsTab": "Einstellungen",
-  "zipOnly": "Bitte ein Studio-Projekt-ZIP oder eine Bilddatei wählen."
+  "zipOnly": "Bitte ein Studio-Projekt-ZIP oder eine Bilddatei wählen.",
+  "downloadJpg": "JPG herunterladen",
+  "jpegCompression": "JPEG-Komprimierung",
+  "jpegLow": "Niedrig (höchste Qualität)",
+  "jpegMedium": "Mittel (Standard)",
+  "jpegHigh": "Hoch (kleinere Datei)",
+  "jpegExportError": "JPG konnte nicht erzeugt werden. Der Ausschnitt ist zu groß oder der Browser hat zu wenig Speicher."
 }
