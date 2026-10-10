@@ -45,3 +45,8 @@
 - The build produces `dist/Image Annotation Studio v01.0.html`.
 - Unit, smoke, regression and Windows batch workflows resolve the output without hardcoded version names.
 - No changes to the annotation engine or user interface.
+
+### Third-party attribution (documentation only)
+- Credited Google Material Icons / Material Symbols as the source of UI icon artwork.
+- Clarified Apache-2.0 icon licensing alongside the project MIT license and bundled the license text.
+- No changes to application code or output behavior.

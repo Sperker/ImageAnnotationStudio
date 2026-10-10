@@ -32,7 +32,7 @@ Build version: **v01.0**, configured in `src/template.html` (the single source f
 
 ## License and security
 
-The project is licensed under **MIT**, © 2026 Sperker.Training. The provenance and reuse rights of the bundled SVG icons still require verification before public release. See [LICENSE](LICENSE) and [third-party notes](docs/THIRD_PARTY.md).
+The application code is licensed under **MIT**, © 2026 Sperker.Training. UI icons use **Google Material Icons** artwork under the separate **Apache License 2.0**; see [LICENSE](LICENSE), [third-party attribution](docs/THIRD_PARTY.md), and the [Apache-2.0 license text](third_party/licenses/Apache-2.0.txt). Individual SVG provenance should still be checked when icons are added or replaced.
 
 The application performs editing locally by design; **offline and open source do not mean vulnerability-free**. Imported image/project files are untrusted. See [security notes](SECURITY.md). **Never include confidential screenshots or project ZIPs in public bug reports.**
 
