@@ -1,4 +1,4 @@
-# Current quality report — 2026-10-10
+# Current quality report - 2026-10-10
 
 This report refers to the **repository extraction of Image Annotation Studio v0.9.1 RC**, not to a fully certified 1.0 release.
 

@@ -1,24 +1,24 @@
 # Image Annotation Studio
 
-**Zero-Friction Image Annotation — Point. Number. Focus.**
+**Zero-Friction Image Annotation - Point. Number. Focus.**
 
 **[User guide](README.en.md) · [Developer guide](docs/DEVELOPER_GUIDE.md) · [Contributing](CONTRIBUTING.md)**
 
 Image Annotation Studio is a small, open-source, offline-first tool for turning screenshots into clear documentation. **No installation, account, server or upload to a third party is required**: open the self-contained HTML file in your browser.
 
-[Download the standalone application](dist/Image%20Annotation%20Studio%20v01.1.html) · [Why this exists](docs/VISION.md) · [Technical documentation](docs/ARCHITECTURE.md) · [JPEG export details](docs/JPEG_EXPORT.md) · [Regression tests](docs/TESTING.md) · [Maintainer notes](docs/MAINTAINER_NOTES.md)
+[Download the standalone application](dist/Image%20Annotation%20Studio%20v01.0.html) · [Why this exists](docs/VISION.md) · [Technical documentation](docs/ARCHITECTURE.md) · [JPEG export details](docs/JPEG_EXPORT.md) · [Regression tests](docs/TESTING.md) · [Maintainer notes](docs/MAINTAINER_NOTES.md)
 
 ## The three tools
 
-1. **Arrow annotation** — point at a relevant UI element.
-2. **Number annotation** — link numbered markers in a screenshot to steps in a document.
-3. **Region of Interest (ROI)** — highlight a detail while keeping its surrounding visual context.
+1. **Arrow annotation** - point at a relevant UI element.
+2. **Number annotation** - link numbered markers in a screenshot to steps in a document.
+3. **Region of Interest (ROI)** - highlight a detail while keeping its surrounding visual context.
 
 Consistent global colors and a temporary *inverted* mode keep the annotations visible even on top of a product's primary color. Layer visibility and ordering, per-tool Undo/Redo, original-resolution PNG and JPG export (three JPEG compression levels), and re-editable project ZIPs are built in.
 
 ## Run / build / test
 
-- **Use:** open `dist/Image Annotation Studio v01.1.html` — even without Internet.
+- **Use:** open `dist/Image Annotation Studio v01.0.html` - even without Internet.
 - **Build:** install Node.js 20+ and run `npm run build` (no npm install necessary).
 - **Unit tests:** `npm test` (no third-party packages).
 - **Browser tests:** `python -m pip install -r requirements-dev.txt`, `python -m playwright install chromium`, then `npm run test:e2e`.
@@ -28,7 +28,7 @@ The build combines `src/template.html`, `src/css/styles.css`, `src/js/app.js`, `
 
 ## Publication status
 
-Build version: **v01.1**, configured in `src/template.html` (the single source for the output filename and HTML title). The filename version does not imply completed multi-browser certification; complete the release checklist before public release. See [release checklist](docs/RELEASE.md).
+Build version: **v01.0**, configured in `src/template.html` (the single source for the output filename and HTML title). The filename version does not imply completed multi-browser certification; complete the release checklist before public release. See [release checklist](docs/RELEASE.md).
 
 ## License and security
 

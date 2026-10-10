@@ -2,13 +2,13 @@
 
 ## Repository map
 
-- `src/template.html` — semantic HTML structure and build placeholders.
-- `src/css/styles.css` — stylesheet, organized by interface feature and cascade order.
-- `src/js/app.js` — editor state, pointer interactions, drawing, history, ZIP and PNG handling.
-- `src/i18n/{en,de}.json` — user-facing strings only.
-- `src/config/app.json` — defaults, color values, image limits.
-- `scripts/build.mjs` — assembles a self-contained `dist/Image Annotation Studio v01.1.html`.
-- `tests/` — unit, smoke and browser regression suites.
+- `src/template.html` - semantic HTML structure and build placeholders.
+- `src/css/styles.css` - stylesheet, organized by interface feature and cascade order.
+- `src/js/app.js` - editor state, pointer interactions, drawing, history, ZIP and PNG handling.
+- `src/i18n/{en,de}.json` - user-facing strings only.
+- `src/config/app.json` - defaults, color values, image limits.
+- `scripts/build.mjs` - assembles a self-contained `dist/Image Annotation Studio v01.0.html`.
+- `tests/` - unit, smoke and browser regression suites.
 
 ## Behavioral invariants
 

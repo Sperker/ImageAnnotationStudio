@@ -1,6 +1,6 @@
-# Image Annotation Studio — English
+# Image Annotation Studio - English
 
-**Zero-Friction Image Annotation — Point. Number. Focus.**
+**Zero-Friction Image Annotation - Point. Number. Focus.**
 
 ## Why it exists
 
@@ -22,7 +22,7 @@ All tools share a **global color palette** that can match the documented applica
 
 ## Getting started
 
-1. Open [`dist/Image Annotation Studio v01.1.html`](dist/Image%20Annotation%20Studio%20v01.1.html) in a modern browser. No network is needed.
+1. Open [`dist/Image Annotation Studio v01.0.html`](dist/Image%20Annotation%20Studio%20v01.0.html) in a modern browser. No network is needed.
 2. Drop an image into the drop zone, or select a file.
 3. Choose Arrows, Numbering or ROI in the tool bar and annotate the image.
 4. Reorder / show / hide drawing layers and use the active tool's Undo/Redo history.
@@ -55,7 +55,7 @@ Sources: `src/`; deliverable: `dist/`. Read the [architecture](docs/ARCHITECTURE
 
 Editing happens locally, but **offline/open source does not guarantee an absence of vulnerabilities**. Imported files must be treated as untrusted and browsers should stay updated. Current image limits: 65 MiB, maximum 16,384 pixels per side and 40 megapixels total.
 
-**Build label:** v01.1 (from `src/template.html`). Cross-browser release certification remains pending. **License:** MIT, © 2026 Sperker.Training. UI icons are based on Google Material Icons artwork (Apache-2.0); the application code uses MIT. See [LICENSE](LICENSE), [third-party notes](docs/THIRD_PARTY.md), and the [icon license text](third_party/licenses/Apache-2.0.txt).
+**Build label:** v01.0 (from `src/template.html`). Cross-browser release certification remains pending. **License:** MIT, © 2026 Sperker.Training. UI icons are based on Google Material Icons artwork (Apache-2.0); the application code uses MIT. See [LICENSE](LICENSE), [third-party notes](docs/THIRD_PARTY.md), and the [icon license text](third_party/licenses/Apache-2.0.txt).
 
 ## Development attribution
 

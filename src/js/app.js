@@ -1,5 +1,5 @@
 /**
- * Image Annotation Studio — application invariants for maintainers.
+ * Image Annotation Studio - application invariants for maintainers.
  *
  * All annotation geometry is stored in original-image pixel coordinates.
  * Each tool owns a separate undo/redo history. Layer visibility and ordering
@@ -10,7 +10,7 @@
  * For the detailed rationale, read docs/MAINTAINER_NOTES.md.
  */
 /**
- * @file Image Annotation Studio — main browser application.
+ * @file Image Annotation Studio - main browser application.
  * @description Runs entirely offline. Original image pixels are the canonical coordinate system.
  * Rendering and export share the same drawing pipeline. Each tool has an independent history.
  * Runtime settings and translations are injected by scripts/build.mjs.

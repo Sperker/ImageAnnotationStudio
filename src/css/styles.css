@@ -1,5 +1,5 @@
 /*
- * IMAGE ANNOTATION STUDIO — STYLESHEET
+ * IMAGE ANNOTATION STUDIO - STYLESHEET
  * ================================
  * Ordered cascade. Later rules intentionally override earlier base rules.
  * Never reorder these sections without visual regression testing.
@@ -935,7 +935,7 @@ button:focus-visible,select:focus-visible,input:focus-visible,.tool-card:focus-v
 
 /* ═══ 04 · Subsequent refinements and final design overrides ═══ */
 
-/* v0.5 – Editor- und Exportbuttons identisch mit den Kopf-Buttons dimensionieren.
+/* v0.5 - Editor- und Exportbuttons identisch mit den Kopf-Buttons dimensionieren.
    Die Modusfarben, Disabled-Zustaende und bestehenden Hover-Regeln bleiben erhalten. */
 #controls button,
 #downloadFlattenedImageBtn,
@@ -982,7 +982,7 @@ button:focus-visible,select:focus-visible,input:focus-visible,.tool-card:focus-v
 
 /* ═══ 05 · Subsequent refinements and final design overrides ═══ */
 
-/* v0.6 – Heading hierarchy and initial file-chooser button. */
+/* v0.6 - Heading hierarchy and initial file-chooser button. */
 #download h3 {
   font-size: 18px;
 }

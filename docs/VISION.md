@@ -1,6 +1,6 @@
 # Product vision
 
-**Zero-Friction Image Annotation — Point. Number. Focus.**
+**Zero-Friction Image Annotation - Point. Number. Focus.**
 
 > The best annotation is one that needs no explanation.
 

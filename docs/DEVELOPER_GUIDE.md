@@ -27,7 +27,7 @@ npm run test:smoke
 npm run test:e2e
 ```
 
-Comments in `src/` are for developers. JSDoc blocks in JavaScript and CSS block comments are removed from the bundled `dist/Image Annotation Studio v01.1.html`. The build does not minify or otherwise transform the program logic.
+Comments in `src/` are for developers. JSDoc blocks in JavaScript and CSS block comments are removed from the bundled `dist/Image Annotation Studio v01.0.html`. The build does not minify or otherwise transform the program logic.
 
 ### About the CSS cascade
 
