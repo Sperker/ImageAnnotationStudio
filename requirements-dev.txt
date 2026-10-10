@@ -1,0 +1,2 @@
+# Only for browser regression tests. Not needed to build or run the application.
+playwright>=1.50,<2

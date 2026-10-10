@@ -1,0 +1,13 @@
+# Release checklist
+
+- [x] Source separated into HTML, CSS, JS, JSON locales and configuration
+- [x] Single-file offline build
+- [x] Unit and browser regression suites available
+- [x] Project ZIP format and technical design documented
+- [ ] Verification of **third-party SVG redistribution rights**
+- [ ] Test on current Chrome/Firefox and **actual Safari/macOS**, plus managed Windows systems
+- [ ] Test representative confidential-free large screenshots with users
+- [ ] Review dependency and browser security advisories
+- [ ] Final tag `v1.0.0` after release qualification
+
+The git repository contains a versioned release-candidate baseline, not a claim that 1.0 is already certified. Users run `dist/Image Annotation Studio v01.0.html` directly.

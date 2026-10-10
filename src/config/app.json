@@ -1,0 +1,53 @@
+{
+  "defaults": {
+    "numbering": {
+      "radius": 20,
+      "stroke": 3,
+      "fontSize": 16,
+      "standardStroke": "#111b42",
+      "standardFill": "#ffffff",
+      "standardText": "#111b42",
+      "invertedStroke": "#ffffff",
+      "invertedFill": "#111b42",
+      "invertedText": "#ffffff"
+    },
+    "arrows": {
+      "stroke": 3,
+      "width": 100,
+      "height": 50,
+      "tail": 0.4,
+      "head": 0.4,
+      "standardStroke": "#033649",
+      "standardFill": "#ffffff",
+      "invertedStroke": "#ffffff",
+      "invertedFill": "#033649",
+      "handle": "#4964d0"
+    },
+    "roi": {
+      "border": 4,
+      "borderColor": "#111b42",
+      "borderRadius": 0,
+      "highlight": "#4964d0",
+      "overlayColor": "#ffffff",
+      "overlayAlpha": 0.9
+    }
+  },
+  "palette": {
+    "standardStroke": "#111b42",
+    "standardFill": "#ffffff",
+    "standardText": "#111b42",
+    "invertedStroke": "#ffffff",
+    "invertedFill": "#111b42",
+    "invertedText": "#ffffff",
+    "handle": "#4964d0",
+    "roiOverlayColor": "#ffffff"
+  },
+  "limits": {
+    "MAX_IMAGE_BYTES": 68157440,
+    "MAX_IMAGE_SIDE": 16384,
+    "MAX_IMAGE_PIXELS": 40000000,
+    "MAX_PREVIEW_SIDE": 4096,
+    "MAX_PREVIEW_PIXELS": 10000000,
+    "MAX_EXPORT_PIXELS": 40000000
+  }
+}

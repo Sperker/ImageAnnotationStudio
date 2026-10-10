@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<!-- Edit this value to set the build version and output filename. -->
+<meta name="studio-version" content="01.0">
+<title>Image Annotation Studio v<!-- BUILD:VERSION --></title>
+<!-- BUILD:CSS -->
+</head>
+<body>
+<div id="masthead"><header id="top"><div id="topTitle">Image Annotation Studio</div><div id="topSubtitle" data-t="subtitle">Reibungslose Bildannotation - Zeigen. Nummerieren. Fokussieren.</div></header><div id="topControls"><button id="newProjectButton" data-t="newProject">Neu</button><button id="settingsButton">Einstellungen</button><div id="languagePicker"><select id="languageSelect" aria-label="Language" tabindex="-1" aria-hidden="true"><option value="en">EN</option><option value="de" selected>DE</option></select><button id="languageToggle" type="button" aria-label="Language" aria-haspopup="listbox" aria-controls="languageMenu" aria-expanded="false">DE <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button><div id="languageMenu" role="listbox" aria-label="Language" hidden><button type="button" role="option" data-language="en" aria-selected="false">EN</button><button type="button" role="option" data-language="de" aria-selected="true">DE</button></div></div></div></div>
+<div id="cont_drop_zone"><div id="drop_zone" tabindex="0" role="button" aria-label="Bild oder Studio-Projekt hochladen"><p data-t="dropHint">Bild oder Studio-Projekt (ZIP) hier ablegen oder</p><button id="selectFileButton" type="button" data-t="chooseImage">Datei auswählen</button><input id="fileInput" type="file" accept="image/*,.zip,application/zip,application/x-zip-compressed"></div></div>
+<section id="layerContainer" aria-label="Layer navigation"><div id="layerBar"><div id="layerCards"></div></div></section>
+<section id="image" aria-label="Image editor">
+  <div id="controls"><div class="control-group" id="modeGroup"><button class="mode-btn mode-active" id="standardBtn" aria-pressed="true">Standard</button><button class="mode-btn" id="invertedBtn" aria-pressed="false">Inverted</button></div><div class="control-group"><button id="undoBtn" disabled>Undo</button><button id="redoBtn" disabled>Redo</button></div></div>
+  <div id="activeDescription" aria-live="polite"></div>
+  <div id="canvasScroll"><canvas id="canvas" aria-label="Annotation canvas"></canvas></div>
+  <div id="viewOptions"><label><input type="radio" name="view" value="full" checked> <span data-t="viewFull">Gesamtansicht</span></label><label><input type="radio" name="view" value="crop" id="viewCrop" disabled> <span data-t="viewCrop">ROI-Ausschnitt anzeigen</span></label></div>
+  <div id="image_info"><span class="caption" data-t="imageLabel">Bild:</span> <span class="value" id="imageNameDisplay"></span> &nbsp;·&nbsp; <span class="caption" data-t="dimensions">Auflösung:</span> <span class="value" id="imageDimensions"></span></div>
+  <span id="scaleFactorDisplay"></span>
+</section>
+<section id="download"><h3 data-t="exportHeading">Globaler Bildexport</h3><div id="downloadOptions"><label><input type="radio" name="exportScope" value="full" checked> <span data-t="exportFull">Gesamtes Bild</span></label><label id="exportCropOption" hidden><input type="radio" name="exportScope" value="crop" id="exportCrop" disabled> <span data-t="exportCrop">Nur ROI-Ausschnitt</span></label><label id="exportBorderOption" hidden><input type="checkbox" id="borderCheckboxROI" disabled> <span data-t="exportBorder">ROI-Rahmen hinzufügen</span></label><label><input type="checkbox" id="timestampCheckbox" checked> <span data-t="timestamp">Zeitstempel</span></label></div><div id="exportName"></div><div id="exportMeta" data-t="exportInfo">Nur sichtbare Annotationen, Originalauflösung</div><button id="downloadFlattenedImageBtn" data-t="download">PNG herunterladen</button><div id="projectExportRow"><button id="downloadProjectBtn" type="button" data-t="exportProject">Projekt als ZIP speichern</button><span data-t="projectHelp">Mit Originalbild, Einstellungen, Layern und vollständiger Undo-/Redo-Historie</span></div></section>
+<footer id="bottom"><span data-t="footer">Undo/Redo je Werkzeug · Entf löscht die Auswahl ©2026 - Sperker.Training</span></footer>
+<div id="overlay"></div><div id="settingsPopup" role="dialog" aria-modal="true" aria-labelledby="settingsTitle"><h3 id="settingsTitle"></h3><div id="settingsTabs" role="tablist" aria-label="Settings areas"></div><div id="settingsFields"></div><div id="settingsActions"><button id="settingsResetButton" data-t="defaults">Standardwerte</button><button id="settingsSaveButton" data-t="save">Speichern</button><button id="settingsCancelButton" data-t="cancel">Abbrechen</button></div></div>
+<div id="status" role="status"></div>
+<!-- BUILD:JS -->
+</body>
+</html>

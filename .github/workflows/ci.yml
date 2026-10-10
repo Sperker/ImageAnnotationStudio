@@ -1,0 +1,36 @@
+name: Tests and offline build
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Build HTML
+        run: npm run build
+      - name: Unit tests
+        run: npm test
+      - name: Install browser test dependencies
+        run: |
+          python -m pip install -r requirements-dev.txt
+          python -m playwright install --with-deps ${{ matrix.browser }}
+      - name: Browser smoke
+        env:
+          STUDIO_BROWSER: ${{ matrix.browser }}
+        run: npm run test:smoke
+      - name: Browser regression
+        env:
+          STUDIO_BROWSER: ${{ matrix.browser }}
+        run: npm run test:e2e

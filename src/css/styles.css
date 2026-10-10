@@ -1,0 +1,958 @@
+/*
+ * IMAGE ANNOTATION STUDIO — STYLESHEET
+ * ================================
+ * Ordered cascade. Later rules intentionally override earlier base rules.
+ * Never reorder these sections without visual regression testing.
+ * The build removes CSS comments from the distributed HTML.
+ */
+
+/* ═══ 01 · Foundation: tokens, layout, toolbar, image, dialogs and breakpoints ═══ */
+
+/* ── Design tokens and base controls ── */
+:root {
+  --accent: #4964d0;
+  --navy: #111b42;
+  --shadow: rgba(0,0,0,.16) 0px 1px 4px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial,sans-serif;
+  background: #f4f4f4;
+  margin: 0;
+  padding: 22px 20px 40px;
+  color: #444;
+}
+
+button,select,input {
+  font: inherit;
+}
+
+button {
+  background: var(--accent);
+  color: white;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  padding: 9px 14px;
+  cursor: pointer;
+  transition: background-color .15s;
+}
+
+button:hover:not(:disabled) {
+  background: var(--navy);
+}
+
+button:disabled {
+  background-color: #fff !important;
+  color: #ccc !important;
+  cursor: not-allowed !important;
+  border-color: #ccc !important;
+}
+
+button:focus-visible,select:focus-visible,input:focus-visible,.tool-card:focus-visible {
+  outline: 3px solid #8c9de7;
+  outline-offset: 2px;
+}
+
+/* ── Header actions and language picker ── */
+#topControls {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  background: #f4f4f4;
+  padding: 10px;
+  z-index: 5;
+  border-radius: 5px;
+}
+
+#topControls button {
+  min-width: 112px;
+  white-space: nowrap;
+}
+
+#topControls #resetSelectionButton {
+  min-width: 160px;
+}
+
+#languageSelect {
+  background: var(--accent);
+  color: white;
+  border: 0;
+  border-radius: 4px;
+  padding: 9px 11px;
+  cursor: pointer;
+}
+
+#top {
+  text-align: center;
+  margin: 72px auto 22px;
+}
+
+#topTitle {
+  font-weight: 700;
+  color: var(--navy);
+  font-size: 24px;
+  margin-bottom: 5px;
+}
+
+#topSubtitle {
+  font-size: 20px;
+}
+
+/* ── Drop zone and page shells ── */
+#cont_drop_zone,#image,#download {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  margin: 20px auto;
+  padding: 10px;
+  text-align: center;
+  width: min(100%,1190px);
+}
+
+#cont_drop_zone {
+  max-width: 1040px;
+}
+
+#drop_zone {
+  border: 1px dashed #bbb;
+  border-radius: 8px;
+  padding: 30px;
+  transition: background .2s;
+}
+
+#drop_zone.dragover,#drop_zone:hover {
+  background: #f3f3ff;
+}
+
+#drop_zone p {
+  margin: 0 0 13px;
+  font-size: 14px;
+}
+
+#fileInput {
+  display: none;
+}
+
+#image,#download {
+  display: none;
+}
+
+#image {
+  padding: 16px 16px 19px;
+}
+
+/* ── Layer cards, visibility and tool-switching ── */
+#layerBar {
+  background: #f7f8fc;
+  border: 1px solid #e5e7ef;
+  border-radius: 8px;
+  padding: 11px 12px;
+  margin: 0 auto 18px;
+  max-width: 850px;
+}
+
+#layerHint {
+  text-align: left;
+  color: #666;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  margin: 0 0 10px;
+}
+
+#layerCards {
+  display: grid;
+  grid-template-columns: repeat(3,minmax(0,1fr));
+  gap: 10px;
+  align-items: stretch;
+}
+
+.tool-card {
+  border: 1px solid #d8dce5;
+  background: white;
+  border-radius: 6px;
+  padding: 9px 8px 10px;
+  min-height: 110px;
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: 5px;
+  transition: border-color .12s,background-color .12s;
+}
+
+.tool-card.active {
+  border: 2px solid var(--accent);
+  padding: 8px 7px 9px;
+}
+
+.tool-card.hidden-layer {
+  background: #ebedf0;
+  color: #9299a3;
+}
+
+.tool-card.hidden-layer .tool-title,.tool-card.hidden-layer .tool-position,.tool-card.hidden-layer .tool-icon {
+  opacity: .48;
+}
+
+.tool-card.drag-over {
+  outline: 2px dashed var(--accent);
+  outline-offset: 2px;
+}
+
+.tool-top {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  align-items: center;
+  min-height: 22px;
+}
+
+.drag-grip {
+  color: #aaa;
+  cursor: grab;
+  font-size: 21px;
+  line-height: 17px;
+  user-select: none;
+}
+
+.drag-grip:active {
+  cursor: grabbing;
+}
+
+.fixed-icon {
+  color: #aaa;
+  font-size: 13px;
+}
+
+.eye-btn {
+  border: none;
+  background: transparent !important;
+  color: #555;
+  padding: 2px 5px;
+  border-radius: 3px;
+  font-size: 17px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.eye-btn:hover {
+  color: var(--navy) !important;
+  background: #e1e6f4 !important;
+}
+
+.tool-card.hidden-layer .eye-btn {
+  color: #7a8087;
+}
+
+.tool-icon {
+  color: var(--accent);
+  font-size: 22px;
+  font-weight: 700;
+  height: 24px;
+  line-height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.number-icon {
+  display: inline-grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  width: 22px;
+  height: 22px;
+  font-size: 14px;
+}
+
+.tool-icon svg {
+  display: block;
+  width: 24px;
+  height: 24px;
+}
+
+.tool-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--navy);
+}
+
+.tool-position {
+  font-size: 11px;
+  color: #777;
+}
+
+/* ── Drawing toolbar ── */
+#controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+  margin: 0 10px 17px;
+  min-height: 48px;
+}
+
+#controls .control-group {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+#controls button {
+  padding: 8px 12px;
+}
+
+#controls .mode-btn {
+  background: #888;
+}
+
+#controls .mode-btn.mode-active {
+  background: var(--accent);
+}
+
+#controls button:hover:not(:disabled) {
+  background: var(--navy);
+}
+
+#modeGroup.roi-mode {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+#activeDescription {
+  font-size: 12px;
+  color: #666;
+  margin: -4px auto 13px;
+  min-height: 15px;
+}
+
+/* ── Canvas preview and coordinate-independent decoration ── */
+#canvasScroll {
+  max-width: 100%;
+  overflow: auto;
+  padding: 10px 16px 17px;
+  margin: 0 auto;
+}
+
+#canvas {
+  display: block;
+  max-width: none;
+  margin: 0 auto;
+  background: white;
+  touch-action: none;
+  outline: 2px solid #fff;
+  box-shadow: rgba(14,30,37,.12) 0 2px 4px 0,rgba(14,30,37,.32) 0 2px 16px 0;
+}
+
+#image_info {
+  padding: 13px 0 7px;
+  font-size: 13px;
+}
+
+#image_info .caption {
+  color: #666;
+}
+
+#image_info .value {
+  font-weight: 700;
+}
+
+#scaleFactorDisplay {
+  display: inline-block;
+  background: #666;
+  color: #fff;
+  font-size: 13px;
+  border-radius: 4px;
+  padding: 6px 10px;
+  margin: 10px auto 0;
+  font-style: italic;
+}
+
+#viewOptions {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin: 12px 0 2px;
+  font-size: 13px;
+}
+
+#viewOptions label {
+  cursor: pointer;
+}
+
+#viewOptions input {
+  accent-color: var(--accent);
+}
+
+/* ── Image and project exports ── */
+#download {
+  padding: 20px 14px 25px;
+}
+
+#download h3 {
+  color: var(--accent);
+  font-size: 19px;
+  margin: 3px 0 16px;
+}
+
+#downloadOptions {
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+  align-items: center;
+  flex-wrap: wrap;
+  font-size: 14px;
+  margin: 10px 0;
+}
+
+#downloadOptions label {
+  cursor: pointer;
+}
+
+#downloadOptions input {
+  accent-color: var(--accent);
+}
+
+#exportName {
+  font-weight: 700;
+  font-style: italic;
+  font-size: 14px;
+  margin: 10px auto 4px;
+  overflow-wrap: anywhere;
+}
+
+#exportMeta {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 13px;
+}
+
+#bottom {
+  text-align: center;
+  color: #666;
+  font-size: 12px;
+  margin: 18px;
+}
+
+/* ── Settings dialog, status and overlays ── */
+#overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: #fffE;
+  z-index: 9;
+}
+
+#settingsPopup {
+  display: none;
+  position: fixed;
+  z-index: 10;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%,-50%);
+  background: #fff;
+  padding: 20px;
+  width: min(490px,calc(100vw - 30px));
+  max-height: 85vh;
+  overflow: auto;
+  border-radius: 8px;
+  box-shadow: 0 0 15px #0006;
+}
+
+#settingsPopup h3 {
+  text-align: center;
+  color: var(--accent);
+  margin: 0 0 11px;
+}
+
+#settingsFields {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) auto;
+  gap: 10px 12px;
+  align-items: center;
+  font-size: 13px;
+  margin: 16px 0 20px;
+}
+
+#settingsFields input {
+  width: 100px;
+  height: 28px;
+  padding: 3px 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+#settingsFields input[type=color] {
+  width: 60px;
+  padding: 2px;
+}
+
+#settingsActions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+#status {
+  position: fixed;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none;
+  opacity: 0;
+  padding: 10px 16px;
+  background: var(--navy);
+  color: white;
+  border-radius: 6px;
+  z-index: 20;
+  font-size: 13px;
+  transition: opacity .2s;
+}
+
+#status.show {
+  opacity: 1;
+}
+
+/* ── Responsive layouts ── */
+@media (max-width:900px) {
+
+}
+
+@media (max-width:550px) {
+
+}
+
+
+/* ═══ 02 · Layer workflow: masthead, independent layer container and settings tabs ═══ */
+
+/* v0.2: preserve the original cards, give them a separate, single-row home. */
+#masthead {
+  display: flex;
+  max-width: 1190px;
+  margin: 0 auto 20px;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 15px;
+}
+
+#top {
+  text-align: left;
+  margin: 0;
+  padding-top: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+#topControls {
+  position: static;
+  margin: 0;
+  padding: 0;
+  background: none;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  max-width: 100%;
+}
+
+#topControls button {
+  min-width: 112px;
+}
+
+#topControls #newProjectButton {
+  min-width: 112px;
+}
+
+#cont_drop_zone {
+  max-width: 1190px;
+}
+
+#layerContainer {
+  display: none;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  margin: 20px auto;
+  width: min(100%,1190px);
+  padding: 13px 17px;
+}
+
+#layerBar {
+  background: #f7f8fc;
+  border: 1px solid #e5e7ef;
+  border-radius: 8px;
+  padding: 11px 12px;
+  margin: 0 auto;
+  max-width: none;
+}
+
+#layerHint {
+  text-align: center;
+  margin-bottom: 9px;
+}
+
+#layerCards {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  gap: 10px;
+  flex-wrap: nowrap;
+}
+
+#drawingGroup {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+#drawingGroup .tool-card,#roiCardSlot .tool-card {
+  width: 190px;
+  min-width: 0;
+  flex-shrink: 0;
+}
+
+#swapLayers {
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  padding: 7px;
+  font-size: 22px;
+  line-height: 1;
+}
+
+#roiSeparator {
+  width: 1px;
+  border-left: 2px dashed #d3d8e4;
+  margin: 9px 4px;
+  align-self: stretch;
+  flex-shrink: 0;
+}
+
+#roiCardSlot {
+  display: flex;
+  min-width: 0;
+}
+
+.tool-card {
+  min-height: 110px;
+}
+
+.tool-top-actions {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.card-reset {
+  border: none;
+  background: transparent !important;
+  color: #666;
+  padding: 3px 4px;
+  border-radius: 3px;
+  line-height: 1;
+  cursor: pointer;
+  display: inline-grid;
+  place-items: center;
+}
+
+.card-reset:hover:not(:disabled) {
+  background: #e1e6f4 !important;
+  color: var(--navy) !important;
+}
+
+#modeGroup.roi-mode {
+  display: none;
+}
+
+#projectExportRow {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 19px auto 0;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7ed;
+  font-size: 12px;
+  color: #666;
+}
+
+#projectExportRow #downloadProjectBtn {
+  background: #fff;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+}
+
+#projectExportRow #downloadProjectBtn:hover {
+  background: var(--navy);
+  color: #fff;
+  border-color: var(--navy);
+}
+
+#settingsPopup {
+  width: min(565px,calc(100vw - 30px));
+}
+
+#settingsTabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  margin: 13px 0 17px;
+}
+
+#settingsTabs button {
+  font-size: 12px;
+  padding: 8px 10px;
+  background: #ebedf3;
+  color: #444;
+  border: 1px solid #d8dce7;
+}
+
+#settingsTabs button.selected {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+#settingsTabs button:hover:not(:disabled) {
+  background: var(--navy);
+  color: #fff;
+}
+
+@media (max-width:900px) {
+
+}
+
+@media (max-width:700px) {
+
+}
+
+@media (max-width:550px) {
+
+}
+
+
+/* ═══ 03 · Compact layer cards and interaction refinements ═══ */
+
+/* v0.3: compact single-shell layer bar; keep the existing cards unchanged. */
+#layerBar {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  max-width: none;
+}
+
+#layerCards {
+  gap: 10px;
+}
+
+#swapLayers {
+  background: #ffffff;
+  color: var(--accent);
+  border: 1px solid transparent;
+  transition: background-color .15s,color .15s,border-color .15s;
+}
+
+#swapLayers:hover:not(:disabled) {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+.tool-top {
+  min-height: 22px;
+}
+
+/* Clear action is in the top left, visibility remains in the top right. */
+.card-reset,.eye-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  min-height: 26px;
+}
+
+.card-reset svg,.eye-btn svg {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
+.tool-top>.card-reset {
+  flex: 0 0 auto;
+}
+
+/* Match the established editor buttons; allow labels to define their widths. */
+#masthead {
+  align-items: flex-start;
+}
+
+#top {
+  padding-top: 0;
+}
+
+#topControls {
+  position: static;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  gap: 10px;
+  flex: 0 1 auto;
+  min-width: 0;
+  flex-wrap: wrap;
+  margin-left: auto;
+}
+
+#topControls button,#topControls #newProjectButton {
+  min-width: 0;
+  width: auto;
+  white-space: nowrap;
+  font-size: 13px;
+  padding: 8px 12px;
+  line-height: normal;
+}
+
+#languagePicker {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+#languageSelect {
+  display: none !important;
+}
+
+#topControls #languageToggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 0;
+  background: var(--accent);
+  color: #fff;
+}
+
+#languageToggle svg {
+  pointer-events: none;
+}
+
+#languageMenu {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 2px);
+  left: 0;
+  min-width: 100%;
+  width: max-content;
+  background: #fff;
+  border: 1px solid #d7dbe6;
+  border-radius: 4px;
+  box-shadow: 0 3px 9px #0002;
+  overflow: hidden;
+}
+
+#languageMenu[hidden] {
+  display: none;
+}
+
+#topControls #languageMenu button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: 0;
+  border-radius: 0;
+  background: #fff;
+  color: #333;
+  min-width: 54px;
+  font-size: 13px;
+  padding: 7px 12px;
+}
+
+#topControls #languageMenu button[aria-selected="true"],#topControls #languageMenu button:hover,#topControls #languageMenu button:focus-visible {
+  background: var(--navy) !important;
+  color: #fff !important;
+  outline: none;
+}
+
+@media (max-width:900px) {
+
+}
+
+@media (max-width:550px) {
+
+}
+
+@media (max-width:385px) {
+
+}
+
+
+/* ═══ 04 · Subsequent refinements and final design overrides ═══ */
+
+/* v0.5 – Editor- und Exportbuttons identisch mit den Kopf-Buttons dimensionieren.
+   Die Modusfarben, Disabled-Zustaende und bestehenden Hover-Regeln bleiben erhalten. */
+#controls button,
+#downloadFlattenedImageBtn,
+#downloadProjectBtn {
+  font-size: 13px;
+  font-weight: 400;
+  line-height: normal;
+  padding: 8px 12px;
+  border-width: 1px;
+  border-style: solid;
+  border-radius: 4px;
+  min-width: 0;
+  width: auto;
+  white-space: nowrap;
+}
+
+#controls button,
+#downloadFlattenedImageBtn {
+  border-color: transparent;
+}
+
+/* Der Projekt-Button bleibt bewusst outlined; seine Maße sind dieselben. */
+
+
+/* ═══ 05 · Subsequent refinements and final design overrides ═══ */
+
+/* v0.6 – Heading hierarchy and initial file-chooser button. */
+#download h3 {
+  font-size: 18px;
+}
+
+#topTitle {
+  font-size: 20px;
+}
+
+#topSubtitle {
+  font-size: 18px;
+}
+
+#selectFileButton {
+  font-size: 13px;
+  font-weight: 400;
+  line-height: normal;
+  padding: 8px 12px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  min-width: 0;
+  width: auto;
+  white-space: nowrap;
+}
