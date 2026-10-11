@@ -10,6 +10,7 @@
  * 03. Determinism and localization checks
  * 04. Configuration and import safety checks
  * 05. Fresh-session English language contract
+ * 06. GitHub repository footer link
  */
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -146,4 +147,26 @@ test('fresh session starts in English in template and compiled app',()=>{
   assert.match(read('src/js/app.js'),/lang:'en'/);
   assert.match(compiled(),/<html lang="en">/);
   assert.match(compiled(),/lang:'en'/);
+});
+
+/**
+ * ==========================================================================
+ * 06. GitHub repository footer link
+ * ==========================================================================
+ */
+/**
+ * Ensure the footer exposes a safe, localized GitHub download link.
+ * @description Checks the bundled offline markup, its inline brand icon and
+ * both language dictionary entries without fetching anything from the network.
+ */
+test('footer provides a localized GitHub repository download link',()=>{
+  const html=compiled();
+  assert.match(html,/<footer id="bottom">[\s\S]*?<span data-t="footer">/);
+  assert.match(html,/<a id="githubProjectLink" href="https:\/\/github\.com\/Sperker\/ImageAnnotationStudio" target="_blank" rel="noopener noreferrer">/);
+  assert.match(html,/<svg[^>]+aria-hidden="true"><path d="M8 0C3\.58/);
+  assert.match(html,/<span data-t="githubDownload">Download this project on GitHub<\/span>/);
+  const en=JSON.parse(read('src/i18n/en.json'));
+  const de=JSON.parse(read('src/i18n/de.json'));
+  assert.equal(en.githubDownload,'Download this project on GitHub');
+  assert.equal(de.githubDownload,'Dieses Projekt auf GitHub herunterladen');
 });

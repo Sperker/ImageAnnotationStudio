@@ -8,7 +8,7 @@
    04. Layer cards, visibility and tool-switching
    05. Drawing toolbar
    06. Canvas preview and coordinate-independent decoration
-   07. Image and project exports
+   07. Image and project exports, including GitHub footer
    08. Settings dialog, status and overlays
    09. Responsive layouts
    10. Layer workflow and independent ROI navigation
@@ -432,8 +432,8 @@ button:focus-visible,select:focus-visible,input:focus-visible,.tool-card:focus-v
 }
 
 /* ==========================================================================
-   07. Image and project exports
-   PNG/JPEG actions, ZIP project download and output options.
+   07. Image and project exports, including GitHub footer
+   PNG/JPEG actions, ZIP project download, output options and repository link.
    ========================================================================== */
 #download {
   padding: 20px 14px 25px;
@@ -482,6 +482,42 @@ button:focus-visible,select:focus-visible,input:focus-visible,.tool-card:focus-v
   color: #666;
   font-size: 12px;
   margin: 18px;
+}
+
+/* The repository link sits on its own line beneath the existing footer.
+   Its GitHub mark is embedded inline so the application remains offline-ready. */
+#bottom > span {
+  display: block;
+}
+
+#githubProjectLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  margin-top: 9px;
+  padding: 4px 6px;
+  color: #4059a9;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+  text-decoration: none;
+}
+
+#githubProjectLink:hover {
+  color: var(--navy);
+  text-decoration: underline;
+}
+
+#githubProjectLink:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+
+#githubProjectLink svg {
+  display: block;
+  flex: 0 0 auto;
 }
 
 /* ==========================================================================

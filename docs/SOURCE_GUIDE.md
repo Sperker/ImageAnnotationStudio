@@ -67,7 +67,10 @@ continue using the Medium default.
 and `BUILD:VERSION` markers are replaced during compilation. Its initial
 `lang="en"` and English static text are consistent with browser startup.
 CSS sections are intentionally ordered, not alphabetized: the final sections
-make product-design overrides to earlier base rules.
+make product-design overrides to earlier base rules. The footer has a locally
+embedded GitHub mark and an external repository link. The translated link label
+is provided by `githubDownload` in the EN/DE dictionaries; no network request
+is made unless the user chooses to follow the link.
 
 ## 6. Build script and configuration
 

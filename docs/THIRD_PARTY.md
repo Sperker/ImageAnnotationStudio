@@ -19,3 +19,11 @@
 ### Asset provenance and future contributions
 
 The maintainer identified the UI icons as Google Material artwork. This attribution does not establish a verified one-to-one correspondence between every embedded path and an upstream Google asset. Before adding or replacing an SVG, contributors should record the upstream icon name or URL, check its license, and preserve any applicable notices. If an icon comes from another source, add that source and license here instead of classifying it as a Google icon.
+
+## GitHub mark in the repository footer
+
+**Attribution:** The GitHub mark displayed beside the footer repository link is a GitHub logo, used solely to identify and link to https://github.com/Sperker/ImageAnnotationStudio. The SVG is embedded locally, so it never requires a font, CDN, or runtime network request.
+
+**Upstream:** https://github.com/primer/octicons (GitHub mark / Octicons).
+
+**Brand terms:** GitHub's logo and trademarks are subject to the [GitHub Logo Policy](https://docs.github.com/en/site-policy/other-site-policies/github-logo-policy). The icon is not the application's own logo and does not imply GitHub endorsement or affiliation. The repository link points outside the offline application only when a user activates it.

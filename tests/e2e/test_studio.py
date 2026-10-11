@@ -13,6 +13,7 @@ Table of contents:
 03. Project ZIP, import safety and image-limit tests
 04. JPEG compression, crop, quality and transparency tests
 05. Startup language and project language persistence
+06. GitHub repository footer link and bilingual label
 
 Run: npm run build && npm run test:e2e
 Set STUDIO_BROWSER to chromium, firefox or webkit as needed.
@@ -638,6 +639,34 @@ class StudioRegression(unittest.TestCase):
         self.assertEqual(self.state('s.lang'),'de')
         self.assertEqual(self.page.locator('html').get_attribute('lang'),'de')
         self.assertEqual(self.page.locator('#languageToggle').inner_text().strip(),'DE')
+
+
+    # ========================================================================
+    # 06. GitHub repository footer link and bilingual label
+    # ========================================================================
+    def test_github_footer_link_is_bilingual_and_requires_no_network(self):
+        """Verify the branded link is beneath the footer in English and German.
+
+        The link is never clicked: the application remains offline until the
+        user intentionally navigates to the external GitHub repository.
+        """
+        link = self.page.locator('#githubProjectLink')
+        self.assertTrue(link.is_visible())
+        self.assertEqual(link.get_attribute('href'), 'https://github.com/Sperker/ImageAnnotationStudio')
+        self.assertEqual(link.get_attribute('target'), '_blank')
+        self.assertEqual(link.get_attribute('rel'), 'noopener noreferrer')
+        self.assertEqual(link.locator('svg').count(), 1)
+        self.assertEqual(link.inner_text().strip(), 'Download this project on GitHub')
+        footer_box = self.page.locator('#bottom > span').bounding_box()
+        link_box = link.bounding_box()
+        self.assertGreaterEqual(link_box['y'], footer_box['y'] + footer_box['height'])
+        self.page.locator('#languageToggle').click()
+        self.page.locator('#languageMenu [data-language="de"]').click()
+        self.assertEqual(link.inner_text().strip(), 'Dieses Projekt auf GitHub herunterladen')
+        self.page.set_viewport_size({'width': 360, 'height': 740})
+        link_box = link.bounding_box()
+        self.assertGreaterEqual(link_box['x'], 0)
+        self.assertLessEqual(link_box['x'] + link_box['width'], 360)
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
