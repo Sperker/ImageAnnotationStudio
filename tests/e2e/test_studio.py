@@ -284,6 +284,28 @@ class StudioRegression(unittest.TestCase):
     # ========================================================================
     # 03. Project ZIP, import safety and image-limit tests
     # ========================================================================
+    def test_project_zip_filename_uses_local_timestamp_and_source_name(self):
+        """Name every saved project ZIP with local date, seconds and image stem.
+
+        The timestamp must not depend on the optional PNG/JPG timestamp checkbox.
+        Windows-reserved filename characters should not appear in the source stem.
+        """
+        self.upload()
+        self.page.locator('#timestampCheckbox').uncheck()
+        self.assertEqual(
+            self.page.evaluate("() => projectFilename('092.png', new Date(2026, 9, 11, 11, 23, 22))"),
+            '2026-10-11 (Time 11-23-22) _ 092_image-studio.zip'
+        )
+        self.assertEqual(
+            self.page.evaluate("(name) => projectFilename(name, new Date(2026, 9, 11, 11, 23, 23))", "a:b/c\\d?e.png"),
+            '2026-10-11 (Time 11-23-23) _ a_b_c_d_e_image-studio.zip'
+        )
+        with self.page.expect_download() as item:
+            self.page.locator('#downloadProjectBtn').click()
+        saved_name = item.value.suggested_filename
+        self.assertRegex(saved_name, r'^\d{4}-\d{2}-\d{2} \(Time \d{2}-\d{2}-\d{2}\) _ sample_image-studio\.zip$')
+        self.assertEqual(saved_name[:10], self.page.evaluate('() => timestamp().slice(0,10)'))
+
     def test_project_zip_roundtrip_history_and_corrupt_archive(self):
         """Round-trip visible state, layer order and undo/redo in ZIP.
 

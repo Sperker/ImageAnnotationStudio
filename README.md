@@ -14,7 +14,7 @@ Image Annotation Studio is a small, open-source, offline-first tool for turning 
 2. **Number annotation** - link numbered markers in a screenshot to steps in a document.
 3. **Region of Interest (ROI)** - highlight a detail while keeping its surrounding visual context.
 
-Consistent global colors and a temporary *inverted* mode keep the annotations visible even on top of a product's primary color. Layer visibility and ordering, per-tool Undo/Redo, original-resolution PNG and JPG export (three JPEG compression levels), and re-editable project ZIPs are built in.
+Consistent global colors and a temporary *inverted* mode keep the annotations visible even on top of a product's primary color. Layer visibility and ordering, per-tool Undo/Redo, original-resolution PNG and JPG export (three JPEG compression levels), and re-editable project ZIPs are built in. Project ZIP download names automatically include the local date and time (to the second), followed by the original image name.
 
 ## Run / build / test
 

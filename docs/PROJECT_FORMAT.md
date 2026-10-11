@@ -2,6 +2,8 @@
 
 A project is an ordinary ZIP archive with **two uncompressed entries**:
 
+The suggested download name includes the local date and time down to seconds, followed by the original image name, for example `2026-10-11 (Time 11-23-22) _ 092_image-studio.zip`. This timestamp affects only the outer filename, not the archive format. Existing project ZIPs still import normally.
+
 ```
 project.json
 original.png  # or original.jpg etc., determined by the original filename

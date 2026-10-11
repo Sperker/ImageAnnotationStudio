@@ -27,7 +27,7 @@ All tools share a **global color palette** that can match the documented applica
 3. Choose Arrows, Numbering or ROI in the tool bar and annotate the image.
 4. Reorder / show / hide drawing layers and use the active tool's Undo/Redo history.
 5. Export a PNG at original image resolution, optionally cropped to the ROI.
-6. Save a **project ZIP** to return to the original image, UI state and complete undo/redo histories later. Drop the ZIP into the app to resume.
+6. Save a **project ZIP** to return to the original image, UI state and complete undo/redo histories later. Drop the ZIP into the app to resume. Project ZIP filenames automatically include the local date and time (to the second) and original image name, e.g. `2026-10-11 (Time 11-23-22) _ 092_image-studio.zip`.
 
 **Keyboard:** Delete removes a selected object. Ctrl/Cmd+Z undoes an action in the active tool; Ctrl+Y or Ctrl/Cmd+Shift+Z redoes it.
 
