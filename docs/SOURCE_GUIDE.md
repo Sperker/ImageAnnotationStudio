@@ -21,7 +21,7 @@ headers from `style(1).css`. Documentation and code comments are in English.
 | File | Role | Documentation |
 | --- | --- | --- |
 | `src/js/app.js` | All editor behavior, pixels, UI state, annotations, ZIP handling | File overview, 10 numbered sections, JSDoc for all top-level functions, types and field schema |
-| `src/css/styles.css` | Ordered visual rules and responsive layout | 13-section table of contents and matching large headings; later rules override earlier declarations |
+| `src/css/styles.css` | Ordered visual rules and responsive layout | 14-section table of contents and matching large headings; later rules override earlier declarations |
 | `src/template.html` | Static accessible controls and injection markers | HTML comment overview and numbered functional sections |
 | `scripts/build.mjs` | Deterministic source-to-single-HTML compiler | JSDoc helper contracts and numbered processing phases |
 | `run-build-and-tests.bat` | Windows build and test launcher | REM overview, help and phase annotations |
@@ -70,7 +70,10 @@ CSS sections are intentionally ordered, not alphabetized: the final sections
 make product-design overrides to earlier base rules. The footer has a locally
 embedded GitHub mark and an external repository link. The translated link label
 is provided by `githubDownload` in the EN/DE dictionaries; no network request
-is made unless the user chooses to follow the link.
+is made unless the user chooses to follow the link. At viewport widths of 740px
+or less, the two drawing cards share the first row and the ROI card spans
+a second row without a separator; wider screens retain the original bar.
+The GitHub link uses the project-specific muted text styling.
 
 ## 6. Build script and configuration
 

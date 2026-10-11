@@ -14,6 +14,7 @@ Table of contents:
 04. JPEG compression, crop, quality and transparency tests
 05. Startup language and project language persistence
 06. GitHub repository footer link and bilingual label
+07. Narrow-screen layer card reflow and footer styling
 
 Run: npm run build && npm run test:e2e
 Set STUDIO_BROWSER to chromium, firefox or webkit as needed.
@@ -667,6 +668,81 @@ class StudioRegression(unittest.TestCase):
         link_box = link.bounding_box()
         self.assertGreaterEqual(link_box['x'], 0)
         self.assertLessEqual(link_box['x'] + link_box['width'], 360)
+
+    # ========================================================================
+    # 07. Narrow-screen layer card reflow and footer styling
+    # ========================================================================
+    def test_narrow_layer_navigation_keeps_cards_usable_and_roi_full_width(self):
+        """Reflow drawing cards and ROI at 740px without clipping.
+
+        Drawings remain on row one, independent ROI fills row two, and the
+        desktop separator disappears. Desktop navigation remains unchanged.
+        """
+        self.upload()
+        for width in (320, 360, 390, 500, 640, 728, 740, 741, 800, 1280):
+            with self.subTest(width=width):
+                self.page.set_viewport_size({'width': width, 'height': 800})
+                data = self.page.evaluate('''
+                    () => {
+                        const rect = id => {
+                            const b = document.getElementById(id).getBoundingClientRect();
+                            return {x: b.left, y: b.top, right: b.right,
+                                    bottom: b.bottom, width: b.width};
+                        };
+                        const cards = [...document.querySelectorAll('#layerCards .tool-card')].map(el => {
+                            const b = el.getBoundingClientRect();
+                            return {x: b.left, y: b.top, right: b.right,
+                                    bottom: b.bottom, width: b.width};
+                        });
+                        return {layer: rect('layerBar'), drawing: rect('drawingGroup'),
+                                roi: rect('roiCardSlot'), separator: getComputedStyle(
+                                    document.getElementById('roiSeparator')).display,
+                                scrollWidth: document.documentElement.scrollWidth,
+                                cards};
+                    }
+                ''')
+                self.assertEqual(len(data['cards']), 3)
+                self.assertLessEqual(data['scrollWidth'], width + 1)
+                for card in data['cards']:
+                    self.assertGreaterEqual(card['x'], data['layer']['x'] - 1)
+                    self.assertLessEqual(card['right'], data['layer']['right'] + 1)
+                if width <= 740:
+                    self.assertEqual(data['separator'], 'none')
+                    self.assertGreaterEqual(data['roi']['y'], data['drawing']['bottom'] + 1)
+                    self.assertAlmostEqual(data['roi']['width'], data['layer']['width'], delta=1)
+                    self.assertAlmostEqual(data['cards'][2]['width'], data['layer']['width'], delta=1)
+                    self.assertAlmostEqual(data['cards'][0]['y'], data['cards'][1]['y'], delta=1)
+                else:
+                    self.assertNotEqual(data['separator'], 'none')
+                    self.assertAlmostEqual(data['drawing']['y'], data['roi']['y'], delta=1)
+
+        self.page.set_viewport_size({'width': 500, 'height': 800})
+        self.page.locator('#roiCardSlot [data-layer="roi"]').click()
+        self.assertEqual(self.state('s.active'), 'roi')
+        self.page.locator('#drawingGroup [data-layer="numbering"]').click()
+        self.assertEqual(self.state('s.active'), 'numbering')
+        before = self.state('s.front.slice()')
+        self.page.locator('#swapLayers').click()
+        self.assertEqual(self.state('s.front.slice()'), list(reversed(before)))
+
+    def test_github_footer_uses_requested_subtle_typography(self):
+        """Check the custom GitHub link styles in the compiled browser page."""
+        computed = self.page.locator('#githubProjectLink').evaluate('''
+            el => {
+                const s = getComputedStyle(el);
+                return {color: s.color, weight: s.fontWeight, fontSize: s.fontSize,
+                        display: s.display, gap: s.gap, marginTop: s.marginTop,
+                        padding: s.padding, alignItems: s.alignItems,
+                        justifyContent: s.justifyContent};
+            }
+        ''')
+        self.assertEqual(computed, {
+            'color': 'rgb(187, 187, 187)', 'weight': '400', 'fontSize': '12px',
+            'display': 'inline-flex', 'gap': '7px', 'marginTop': '9px',
+            'padding': '4px 6px', 'alignItems': 'center',
+            'justifyContent': 'center',
+        })
+
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)

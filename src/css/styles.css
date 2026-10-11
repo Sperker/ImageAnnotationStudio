@@ -15,6 +15,7 @@
    11. Compact layer bar and user interaction
    12. Consistent editor and download action sizing
    13. Final heading and drop-zone refinements
+   14. Narrow-screen layer navigation
    ==========================================================================
    The cascade is ordered intentionally. The later sections refine rules from
    earlier sections and must not be reordered without browser regression tests.
@@ -497,9 +498,8 @@ button:focus-visible,select:focus-visible,input:focus-visible,.tool-card:focus-v
   gap: 7px;
   margin-top: 9px;
   padding: 4px 6px;
-  color: #4059a9;
+  color: #bbb;
   font-size: 12px;
-  font-weight: 600;
   line-height: 1.4;
   text-decoration: none;
 }
@@ -1095,4 +1095,45 @@ button:focus-visible,select:focus-visible,input:focus-visible,.tool-card:focus-v
   min-width: 0;
   width: auto;
   white-space: nowrap;
+}
+
+/* ==========================================================================
+   14. Narrow-screen layer navigation
+   Keep the arrow and numbering cards together; move the independent ROI card
+   into a full-width second row instead of shrinking three cards past legibility.
+   The separator exists only between the desktop drawing and ROI groups.
+   ========================================================================== */
+@media (max-width:740px) {
+  #layerCards {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  #drawingGroup {
+    width: 100%;
+    min-width: 0;
+    gap: 10px;
+  }
+
+  #drawingGroup .tool-card {
+    flex: 1 1 0;
+    width: auto;
+    min-width: 0;
+  }
+
+  #roiSeparator {
+    display: none;
+  }
+
+  #roiCardSlot {
+    width: 100%;
+    min-width: 0;
+  }
+
+  #roiCardSlot .tool-card {
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
+  }
 }

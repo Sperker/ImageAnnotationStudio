@@ -464,9 +464,8 @@ button:focus-visible,select:focus-visible,input:focus-visible,.tool-card:focus-v
   gap: 7px;
   margin-top: 9px;
   padding: 4px 6px;
-  color: #4059a9;
+  color: #bbb;
   font-size: 12px;
-  font-weight: 600;
   line-height: 1.4;
   text-decoration: none;
 }
@@ -1043,6 +1042,42 @@ button:focus-visible,select:focus-visible,input:focus-visible,.tool-card:focus-v
   min-width: 0;
   width: auto;
   white-space: nowrap;
+}
+
+
+@media (max-width:740px) {
+  #layerCards {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  #drawingGroup {
+    width: 100%;
+    min-width: 0;
+    gap: 10px;
+  }
+
+  #drawingGroup .tool-card {
+    flex: 1 1 0;
+    width: auto;
+    min-width: 0;
+  }
+
+  #roiSeparator {
+    display: none;
+  }
+
+  #roiCardSlot {
+    width: 100%;
+    min-width: 0;
+  }
+
+  #roiCardSlot .tool-card {
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
+  }
 }
 </style>
 </head>
