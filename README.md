@@ -2,7 +2,7 @@
 
 **Zero-Friction Image Annotation - Point. Number. Focus.**
 
-**[User guide](README.en.md) · [Developer guide](docs/DEVELOPER_GUIDE.md) · [Contributing](CONTRIBUTING.md)**
+**[User guide](README.en.md) · [Developer guide](docs/DEVELOPER_GUIDE.md) · [Planned changes](docs/TODO.md) · [Contributing](CONTRIBUTING.md)**
 
 Image Annotation Studio is a small, open-source, offline-first tool for turning screenshots into clear documentation. **No installation, account, server or upload to a third party is required**: open the self-contained HTML file in your browser.
 
