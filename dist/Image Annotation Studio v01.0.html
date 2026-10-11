@@ -1,8 +1,10 @@
 <!doctype html>
-<html lang="de">
+
+
+<html lang="en">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<!-- Edit this value to set the build version and output filename. -->
+
 <meta name="studio-version" content="01.0">
 <title>Image Annotation Studio v01.0</title>
 <style>
@@ -1010,29 +1012,39 @@ button:focus-visible,select:focus-visible,input:focus-visible,.tool-card:focus-v
 </style>
 </head>
 <body>
-<div id="masthead"><header id="top"><div id="topTitle">Image Annotation Studio</div><div id="topSubtitle" data-t="subtitle">Reibungslose Bildannotation - Zeigen. Nummerieren. Fokussieren.</div></header><div id="topControls"><button id="newProjectButton" data-t="newProject">Neu</button><button id="settingsButton">Einstellungen</button><div id="languagePicker"><select id="languageSelect" aria-label="Language" tabindex="-1" aria-hidden="true"><option value="en">EN</option><option value="de" selected>DE</option></select><button id="languageToggle" type="button" aria-label="Language" aria-haspopup="listbox" aria-controls="languageMenu" aria-expanded="false">DE <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button><div id="languageMenu" role="listbox" aria-label="Language" hidden><button type="button" role="option" data-language="en" aria-selected="false">EN</button><button type="button" role="option" data-language="de" aria-selected="true">DE</button></div></div></div></div>
-<div id="cont_drop_zone"><div id="drop_zone" tabindex="0" role="button" aria-label="Bild oder Studio-Projekt hochladen"><p data-t="dropHint">Bild oder Studio-Projekt (ZIP) hier ablegen oder</p><button id="selectFileButton" type="button" data-t="chooseImage">Datei auswählen</button><input id="fileInput" type="file" accept="image/*,.zip,application/zip,application/x-zip-compressed"></div></div>
+
+<div id="masthead"><header id="top"><div id="topTitle">Image Annotation Studio</div><div id="topSubtitle" data-t="subtitle">Zero-Friction Image Annotation - Point. Number. Focus.</div></header><div id="topControls"><button id="newProjectButton" data-t="newProject">New</button><button id="settingsButton">Settings</button><div id="languagePicker"><select id="languageSelect" aria-label="Language" tabindex="-1" aria-hidden="true"><option value="en" selected>EN</option><option value="de">DE</option></select><button id="languageToggle" type="button" aria-label="Language" aria-haspopup="listbox" aria-controls="languageMenu" aria-expanded="false">EN <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button><div id="languageMenu" role="listbox" aria-label="Language" hidden><button type="button" role="option" data-language="en" aria-selected="true">EN</button><button type="button" role="option" data-language="de" aria-selected="false">DE</button></div></div></div></div>
+<div id="cont_drop_zone"><div id="drop_zone" tabindex="0" role="button" aria-label="Upload an image or Image Studio project"><p data-t="dropHint">Drop an image or Image Studio project (ZIP) here, or</p><button id="selectFileButton" type="button" data-t="chooseImage">Choose file</button><input id="fileInput" type="file" accept="image/*,.zip,application/zip,application/x-zip-compressed"></div></div>
+
 <section id="layerContainer" aria-label="Layer navigation"><div id="layerBar"><div id="layerCards"></div></div></section>
 <section id="image" aria-label="Image editor">
   <div id="controls"><div class="control-group" id="modeGroup"><button class="mode-btn mode-active" id="standardBtn" aria-pressed="true">Standard</button><button class="mode-btn" id="invertedBtn" aria-pressed="false">Inverted</button></div><div class="control-group"><button id="undoBtn" disabled>Undo</button><button id="redoBtn" disabled>Redo</button></div></div>
   <div id="activeDescription" aria-live="polite"></div>
   <div id="canvasScroll"><canvas id="canvas" aria-label="Annotation canvas"></canvas></div>
-  <div id="viewOptions"><label><input type="radio" name="view" value="full" checked> <span data-t="viewFull">Gesamtansicht</span></label><label><input type="radio" name="view" value="crop" id="viewCrop" disabled> <span data-t="viewCrop">ROI-Ausschnitt anzeigen</span></label></div>
-  <div id="image_info"><span class="caption" data-t="imageLabel">Bild:</span> <span class="value" id="imageNameDisplay"></span> &nbsp;·&nbsp; <span class="caption" data-t="dimensions">Auflösung:</span> <span class="value" id="imageDimensions"></span></div>
+  <div id="viewOptions"><label><input type="radio" name="view" value="full" checked> <span data-t="viewFull">Full image</span></label><label><input type="radio" name="view" value="crop" id="viewCrop" disabled> <span data-t="viewCrop">Show ROI only</span></label></div>
+  <div id="image_info"><span class="caption" data-t="imageLabel">Image:</span> <span class="value" id="imageNameDisplay"></span> &nbsp;·&nbsp; <span class="caption" data-t="dimensions">Dimensions:</span> <span class="value" id="imageDimensions"></span></div>
   <span id="scaleFactorDisplay"></span>
 </section>
-<section id="download"><h3 data-t="exportHeading">Globaler Bildexport</h3><div id="downloadOptions"><label><input type="radio" name="exportScope" value="full" checked> <span data-t="exportFull">Gesamtes Bild</span></label><label id="exportCropOption" hidden><input type="radio" name="exportScope" value="crop" id="exportCrop" disabled> <span data-t="exportCrop">Nur ROI-Ausschnitt</span></label><label id="exportBorderOption" hidden><input type="checkbox" id="borderCheckboxROI" disabled> <span data-t="exportBorder">ROI-Rahmen hinzufügen</span></label><label><input type="checkbox" id="timestampCheckbox" checked> <span data-t="timestamp">Zeitstempel</span></label></div><div id="exportName"></div><div id="exportMeta" data-t="exportInfo">Nur sichtbare Annotationen, Originalauflösung</div><div id="imageExportButtons"><button id="downloadFlattenedImageBtn" data-t="download">PNG herunterladen</button><button id="downloadJpgBtn" type="button" data-t="downloadJpg">JPG herunterladen</button></div><div id="projectExportRow"><button id="downloadProjectBtn" type="button" data-t="exportProject">Projekt als ZIP speichern</button><span data-t="projectHelp">Mit Originalbild, Einstellungen, Layern und vollständiger Undo-/Redo-Historie</span></div></section>
-<footer id="bottom"><span data-t="footer">Undo/Redo je Werkzeug · Entf löscht die Auswahl ©2026 - Sperker.Training</span></footer>
-<div id="overlay"></div><div id="settingsPopup" role="dialog" aria-modal="true" aria-labelledby="settingsTitle"><h3 id="settingsTitle"></h3><div id="settingsTabs" role="tablist" aria-label="Settings areas"></div><div id="settingsFields"></div><div id="settingsActions"><button id="settingsResetButton" data-t="defaults">Standardwerte</button><button id="settingsSaveButton" data-t="save">Speichern</button><button id="settingsCancelButton" data-t="cancel">Abbrechen</button></div></div>
+
+<section id="download"><h3 data-t="exportHeading">Global image export</h3><div id="downloadOptions"><label><input type="radio" name="exportScope" value="full" checked> <span data-t="exportFull">Full image</span></label><label id="exportCropOption" hidden><input type="radio" name="exportScope" value="crop" id="exportCrop" disabled> <span data-t="exportCrop">ROI crop only</span></label><label id="exportBorderOption" hidden><input type="checkbox" id="borderCheckboxROI" disabled> <span data-t="exportBorder">Add ROI border</span></label><label><input type="checkbox" id="timestampCheckbox" checked> <span data-t="timestamp">Timestamp</span></label></div><div id="exportName"></div><div id="exportMeta" data-t="exportInfo">Visible annotations · original-resolution export</div><div id="imageExportButtons"><button id="downloadFlattenedImageBtn" data-t="download">Download PNG</button><button id="downloadJpgBtn" type="button" data-t="downloadJpg">Download JPG</button></div><div id="projectExportRow"><button id="downloadProjectBtn" type="button" data-t="exportProject">Save Image Studio project (ZIP)</button><span data-t="projectHelp">Original image, UI state and full Undo/Redo history</span></div></section>
+
+<footer id="bottom"><span data-t="footer">Undo/Redo per tool · Delete removes selection ©2026 - Sperker.Training</span></footer>
+<div id="overlay"></div><div id="settingsPopup" role="dialog" aria-modal="true" aria-labelledby="settingsTitle"><h3 id="settingsTitle"></h3><div id="settingsTabs" role="tablist" aria-label="Settings areas"></div><div id="settingsFields"></div><div id="settingsActions"><button id="settingsResetButton" data-t="defaults">Defaults</button><button id="settingsSaveButton" data-t="save">Save</button><button id="settingsCancelButton" data-t="cancel">Cancel</button></div></div>
 <div id="status" role="status"></div>
+
 <script>
+
+
 
 
 
 'use strict';
 // Image coordinates are ALWAYS stored in original pixels. Preview and export share a renderer.
+
 const $=id=>document.getElementById(id);
+
 const clone=value=>JSON.parse(JSON.stringify(value));
+
 const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
 const defaults={"numbering":{"radius":20,"stroke":3,"fontSize":16,"standardStroke":"#111b42","standardFill":"#ffffff","standardText":"#111b42","invertedStroke":"#ffffff","invertedFill":"#111b42","invertedText":"#ffffff"},"arrows":{"stroke":3,"width":100,"height":50,"tail":0.4,"head":0.4,"standardStroke":"#033649","standardFill":"#ffffff","invertedStroke":"#ffffff","invertedFill":"#033649","handle":"#4964d0"},"roi":{"border":4,"borderColor":"#111b42","borderRadius":0,"highlight":"#4964d0","overlayColor":"#ffffff","overlayAlpha":0.9}};
 const defaultPalette={"standardStroke":"#111b42","standardFill":"#ffffff","standardText":"#111b42","invertedStroke":"#ffffff","invertedFill":"#111b42","invertedText":"#ffffff","handle":"#4964d0","roiOverlayColor":"#ffffff"};
@@ -1040,9 +1052,11 @@ const names={numbering:'Numbering',arrows:'Arrows',roi:'ROI'};
 
 const JPEG_QUALITY=Object.freeze({"low":0.92,"medium":0.8,"high":0.6});
 const DEFAULT_JPEG_COMPRESSION="medium";
-const state={loaded:false,img:null,sourceFile:null,name:'',palette:clone(defaultPalette),front:['arrows','numbering'],active:'arrows',visible:{arrows:true,numbering:true,roi:true},items:{arrows:[],numbering:[],roi:null},settings:clone(defaults),preferred:{arrows:1,numbering:1},ctrl:false,selection:{arrows:-1,numbering:-1},hist:{arrows:{undo:[],redo:[]},numbering:{undo:[],redo:[]},roi:{undo:[],redo:[]}},jpegCompression:DEFAULT_JPEG_COMPRESSION,dirty:false,view:'full',scale:1,window:{x:0,y:0,w:1,h:1},pointer:null,hover:null,lang:'de'};
+
+const state={loaded:false,img:null,sourceFile:null,name:'',palette:clone(defaultPalette),front:['arrows','numbering'],active:'arrows',visible:{arrows:true,numbering:true,roi:true},items:{arrows:[],numbering:[],roi:null},settings:clone(defaults),preferred:{arrows:1,numbering:1},ctrl:false,selection:{arrows:-1,numbering:-1},hist:{arrows:{undo:[],redo:[]},numbering:{undo:[],redo:[]},roi:{undo:[],redo:[]}},jpegCompression:DEFAULT_JPEG_COMPRESSION,dirty:false,view:'full',scale:1,window:{x:0,y:0,w:1,h:1},pointer:null,hover:null,lang:'en'};
 // Release safety: prevent silent loss of an unsaved working state.
 let toastTimer=0,saveRevision=0;
+
 
 function markDirty(){if(state.loaded){state.dirty=true;saveRevision++;}}
 window.addEventListener('beforeunload',event=>{
@@ -1087,6 +1101,7 @@ $('languageMenu').addEventListener('click',e=>{const button=e.target.closest('[d
 $('languageMenu').addEventListener('keydown',e=>{const options=[...$('languageMenu').querySelectorAll('[data-language]')],idx=options.indexOf(document.activeElement);if(e.key==='Escape'){e.preventDefault();closeLanguageMenu();$('languageToggle').focus();}else if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();options[(idx+(e.key==='ArrowDown'?1:options.length-1))%options.length].focus();}else if(e.key==='Home'||e.key==='End'){e.preventDefault();options[e.key==='Home'?0:options.length-1].focus();}});
 document.addEventListener('pointerdown',e=>{if(!e.target.closest('#languagePicker'))closeLanguageMenu();});
 $('languageToggle').addEventListener('keydown',e=>{if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();openLanguageMenu();}});
+
 
 function hasRoi(){const r=state.items.roi;return !!(r&&r.w>1&&r.h>1)}
 const NUMBER_LAYER_ICON='<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10" fill="currentColor"/><text x="12" y="16" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#ffffff">1</text></svg>';
@@ -1139,6 +1154,7 @@ document.addEventListener('keyup',e=>{if(e.key==='Control'){state.ctrl=false;ref
 window.addEventListener('blur',()=>{state.ctrl=false;refreshToolbar();cancelPointer();});document.addEventListener('visibilitychange',()=>{if(document.hidden){state.ctrl=false;refreshToolbar();cancelPointer();}});
 const canvas=$('canvas'),ctx=canvas.getContext('2d');
 
+
 function imageDims(){return {w:state.img.naturalWidth,h:state.img.naturalHeight};}
 
 function validRoi(){if(!hasRoi())return null;const r=state.items.roi,{w,h}=imageDims(),x=clamp(r.x,0,w),y=clamp(r.y,0,h),right=clamp(r.x+r.w,0,w),bottom=clamp(r.y+r.h,0,h);return right-x>=1&&bottom-y>=1?{x,y,w:right-x,h:bottom-y}:null;}
@@ -1165,6 +1181,7 @@ function timestamp(){const d=new Date(),p=n=>String(n).padStart(2,'0');return `$
 function filename(extension='png'){const base=(state.name.replace(/\.[^.]*$/,'')||'edited-image').replace(/[\\/\u0000-\u001f]/g,'_');const suffix=$('exportCrop').checked?'_roi':'_annotated';return base+suffix+($('timestampCheckbox').checked?'_'+timestamp():'')+'.'+extension;}
 
 function updateFilename(){$('exportName').textContent=state.loaded?filename():'';}
+
 
 function colorWithAlpha(hex,opacity){let s=hex.replace('#','');if(s.length===3)s=s.split('').map(x=>x+x).join('');return `rgba(${parseInt(s.slice(0,2),16)},${parseInt(s.slice(2,4),16)},${parseInt(s.slice(4,6),16)},${opacity})`;}
 // All shapes are drawn in original-image coordinates; the context transform maps to preview/export.
@@ -1193,6 +1210,7 @@ function render(context,windowRect,opts={}){const scale=opts.scale??1;context.sa
 
 function paint(){if(!state.loaded)return;render(ctx,state.window,{scale:canvas.width/state.window.w,preview:true,crop:state.view==='crop'});updateFilename();}
 
+
 function between(x,a,b){return x>=a&&x<=b;}
 
 function isEditing(){return state.loaded&&state.visible[state.active]}
@@ -1217,6 +1235,7 @@ function cancelPointer(){const d=state.pointer;if(!d)return;state.pointer=null;r
 canvas.addEventListener('pointerdown',beginPointer);canvas.addEventListener('pointermove',movePointer);canvas.addEventListener('pointerup',endPointer);canvas.addEventListener('pointercancel',endPointer);canvas.addEventListener('pointerleave',()=>{if(!state.pointer){state.hover=null;paint();}});canvas.addEventListener('contextmenu',e=>e.preventDefault());
 // Settings belong to each module; changing them is a single entry in that module's history.
 // One global palette for all tools, independent numeric settings in module tabs.
+
 const fieldDefs={
  global:[['standardStroke','Standard · outline','color'],['standardFill','Standard · fill','color'],['standardText','Standard · number color','color'],['invertedStroke','Inverted · outline','color'],['invertedFill','Inverted · fill','color'],['invertedText','Inverted · number color','color'],['handle','Handle color','color'],['roiOverlayColor','ROI overlay color','color']],
  numbering:[['radius','Circle radius / Kreisradius','number',1,999,1],['stroke','Stroke thickness / Strichstärke','number',0,100,1],['fontSize','Number size / Schriftgröße','number',1,200,1]],
@@ -1224,6 +1243,7 @@ const fieldDefs={
  roi:[['border','ROI border thickness / Rahmenstärke','number',0,100,1],['borderRadius','ROI corner radius / Eckenradius','number',0,500,1],['overlayAlpha','Overlay opacity / Deckkraft','number',0,1,.05]]
 };
 let settingDraft=null,settingTab='global';
+
 
 function renderSettingsTabs(){const tabs=$('settingsTabs');tabs.replaceChildren();for(const id of ['global','arrows','numbering','roi']){const b=document.createElement('button');b.type='button';b.textContent=id==='global'?t('globalTab'):t(id);b.classList.toggle('selected',id===settingTab);b.setAttribute('role','tab');b.setAttribute('aria-selected',String(id===settingTab));b.onclick=()=>{if(!collectSettingsDraft())return;settingTab=id;renderSettingsTabs();renderSettingsFields();};tabs.append(b);}}
 
@@ -1253,6 +1273,7 @@ $('settingsSaveButton').onclick=()=>{if(!collectSettingsDraft())return;const bef
 $('overlay').onclick=closeSettings;
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('settingsPopup').style.display==='block'){e.preventDefault();closeSettings();}});
 // Images and project ZIPs can be dropped or selected. No network access is required.
+
 
 function defaultHistory(){return {arrows:{undo:[],redo:[]},numbering:{undo:[],redo:[]},roi:{undo:[],redo:[]}};}
 
@@ -1319,6 +1340,7 @@ async function loadFile(file){
 // Global export: render once at original pixels, optionally crop; no editor handles,
 // CSS shadows, view-only selection, or UI elements enter the exported bitmap.
 
+
 function roundedBorder(context,x,y,w,h,r,lineWidth,color){context.save();roundedPath(context,x,y,w,h,r);context.lineWidth=lineWidth;context.strokeStyle=color;context.stroke();context.restore();}
 
 function downloadBlob(blob,name){const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000);}
@@ -1364,6 +1386,7 @@ $('downloadJpgBtn').onclick=()=>exportImage('jpg');
 const enc=new TextEncoder(),dec=new TextDecoder('utf-8',{fatal:true});
 const zipTable=(()=>{const arr=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let j=0;j<8;j++)c=(c&1)?0xedb88320^(c>>>1):c>>>1;arr[n]=c>>>0;}return arr;})();
 
+
 function crc32(bytes){let c=0xffffffff;for(let i=0;i<bytes.length;i++)c=zipTable[(c^bytes[i])&255]^(c>>>8);return (c^0xffffffff)>>>0;}
 
 function u16(view,at,x){view.setUint16(at,x,true);}
@@ -1374,6 +1397,7 @@ function createZip(entries){const blocks=[],central=[];let offset=0;for(const {n
 const cdSize=central.reduce((sum,b)=>sum+b.length,0),ending=new Uint8Array(22),ev=new DataView(ending.buffer);u32(ev,0,0x06054b50);u16(ev,8,entries.length);u16(ev,10,entries.length);u32(ev,12,cdSize);u32(ev,16,offset);return new Blob([...blocks,...central,ending],{type:'application/zip'});}
 
 function readZip(data){if(data.length>90*1024*1024)throw new Error('ZIP too large');const v=new DataView(data.buffer,data.byteOffset,data.byteLength);let eocd=-1;for(let i=data.length-22;i>=Math.max(0,data.length-65557);i--){if(v.getUint32(i,true)===0x06054b50){eocd=i;break;}}if(eocd<0)throw new Error('Missing ZIP directory');const cnt=v.getUint16(eocd+10,true),sz=v.getUint32(eocd+12,true),base=v.getUint32(eocd+16,true);if(cnt!==2||base+sz>eocd)throw new Error('Unexpected ZIP archive');const files=new Map();let pos=base;for(let j=0;j<cnt;j++){if(pos+46>data.length||v.getUint32(pos,true)!==0x02014b50)throw new Error('Bad central directory');const flag=v.getUint16(pos+8,true),method=v.getUint16(pos+10,true),crc=v.getUint32(pos+16,true),packed=v.getUint32(pos+20,true),size=v.getUint32(pos+24,true),nameSize=v.getUint16(pos+28,true),extra=v.getUint16(pos+30,true),comment=v.getUint16(pos+32,true),loc=v.getUint32(pos+42,true);if(flag&1||method!==0||size!==packed||size>65*1024*1024)throw new Error('Unsupported ZIP encoding');if(pos+46+nameSize+extra+comment>data.length)throw new Error('Corrupt directory');const name=dec.decode(data.subarray(pos+46,pos+46+nameSize));if(!/^[a-zA-Z0-9_.-]+$/.test(name)||files.has(name))throw new Error('Invalid ZIP filename');if(loc+30>data.length||v.getUint32(loc,true)!==0x04034b50)throw new Error('Missing ZIP file');const start=loc+30+v.getUint16(loc+26,true)+v.getUint16(loc+28,true);if(start+size>data.length)throw new Error('Truncated ZIP file');const bytes=data.subarray(start,start+size);if(crc32(bytes)!==crc)throw new Error('ZIP checksum mismatch');files.set(name,bytes);pos+=46+nameSize+extra+comment;}if(pos!==base+sz)throw new Error('Invalid ZIP directory size');return files;}
+
 
 function validFinite(n){return typeof n==='number'&&Number.isFinite(n)&&Math.abs(n)<=1e8;}
 

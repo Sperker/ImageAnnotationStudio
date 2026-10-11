@@ -1,14 +1,32 @@
-/*
- * IMAGE ANNOTATION STUDIO - STYLESHEET
- * ================================
- * Ordered cascade. Later rules intentionally override earlier base rules.
- * Never reorder these sections without visual regression testing.
- * The build removes CSS comments from the distributed HTML.
- */
+/* ==========================================================================
+   IMAGE ANNOTATION STUDIO - MAIN STYLESHEET
+   ==========================================================================
+   Table of contents:
+   01. Design tokens and base controls
+   02. Header actions and language picker
+   03. Drop zone and page shells
+   04. Layer cards, visibility and tool-switching
+   05. Drawing toolbar
+   06. Canvas preview and coordinate-independent decoration
+   07. Image and project exports
+   08. Settings dialog, status and overlays
+   09. Responsive layouts
+   10. Layer workflow and independent ROI navigation
+   11. Compact layer bar and user interaction
+   12. Consistent editor and download action sizing
+   13. Final heading and drop-zone refinements
+   ==========================================================================
+   The cascade is ordered intentionally. The later sections refine rules from
+   earlier sections and must not be reordered without browser regression tests.
+   CSS comments are removed by scripts/build.mjs during the offline build.
+   ========================================================================== */
 
 /* ═══ 01 · Foundation: tokens, layout, toolbar, image, dialogs and breakpoints ═══ */
 
-/* ── Design tokens and base controls ── */
+/* ==========================================================================
+   01. Design tokens and base controls
+   Design tokens, browser defaults and common button focus rules.
+   ========================================================================== */
 :root {
   --accent: #4964d0;
   --navy: #111b42;
@@ -57,7 +75,10 @@ button:focus-visible,select:focus-visible,input:focus-visible,.tool-card:focus-v
   outline-offset: 2px;
 }
 
-/* ── Header actions and language picker ── */
+/* ==========================================================================
+   02. Header actions and language picker
+   Header button alignment and accessible EN/DE dropdown controls.
+   ========================================================================== */
 #topControls {
   position: absolute;
   top: 10px;
@@ -105,7 +126,10 @@ button:focus-visible,select:focus-visible,input:focus-visible,.tool-card:focus-v
   font-size: 20px;
 }
 
-/* ── Drop zone and page shells ── */
+/* ==========================================================================
+   03. Drop zone and page shells
+   Initial file selection surface, masthead, editor containers.
+   ========================================================================== */
 #cont_drop_zone,#image,#download {
   background: #fff;
   border-radius: 8px;
@@ -148,7 +172,10 @@ button:focus-visible,select:focus-visible,input:focus-visible,.tool-card:focus-v
   padding: 16px 16px 19px;
 }
 
-/* ── Layer cards, visibility and tool-switching ── */
+/* ==========================================================================
+   04. Layer cards, visibility and tool-switching
+   Drawing-order cards, ROI card and per-layer actions.
+   ========================================================================== */
 #layerBar {
   background: #f7f8fc;
   border: 1px solid #e5e7ef;
@@ -293,7 +320,10 @@ button:focus-visible,select:focus-visible,input:focus-visible,.tool-card:focus-v
   color: #777;
 }
 
-/* ── Drawing toolbar ── */
+/* ==========================================================================
+   05. Drawing toolbar
+   Standard/Inverted modes and tool-specific undo/redo controls.
+   ========================================================================== */
 #controls {
   display: flex;
   justify-content: center;
@@ -338,7 +368,10 @@ button:focus-visible,select:focus-visible,input:focus-visible,.tool-card:focus-v
   min-height: 15px;
 }
 
-/* ── Canvas preview and coordinate-independent decoration ── */
+/* ==========================================================================
+   06. Canvas preview and coordinate-independent decoration
+   Preview sizing, canvas containers and user instructions.
+   ========================================================================== */
 #canvasScroll {
   max-width: 100%;
   overflow: auto;
@@ -398,7 +431,10 @@ button:focus-visible,select:focus-visible,input:focus-visible,.tool-card:focus-v
   accent-color: var(--accent);
 }
 
-/* ── Image and project exports ── */
+/* ==========================================================================
+   07. Image and project exports
+   PNG/JPEG actions, ZIP project download and output options.
+   ========================================================================== */
 #download {
   padding: 20px 14px 25px;
 }
@@ -448,7 +484,10 @@ button:focus-visible,select:focus-visible,input:focus-visible,.tool-card:focus-v
   margin: 18px;
 }
 
-/* ── Settings dialog, status and overlays ── */
+/* ==========================================================================
+   08. Settings dialog, status and overlays
+   Modal sizing, per-tool settings and transient notifications.
+   ========================================================================== */
 #overlay {
   display: none;
   position: fixed;
@@ -541,7 +580,10 @@ button:focus-visible,select:focus-visible,input:focus-visible,.tool-card:focus-v
   opacity: 1;
 }
 
-/* ── Responsive layouts ── */
+/* ==========================================================================
+   09. Responsive layouts
+   Adaptation for narrow viewports without changing the fixed desktop modal width.
+   ========================================================================== */
 @media (max-width:900px) {
 
 }
@@ -551,9 +593,12 @@ button:focus-visible,select:focus-visible,input:focus-visible,.tool-card:focus-v
 }
 
 
-/* ═══ 02 · Layer workflow: masthead, independent layer container and settings tabs ═══ */
+/* ==========================================================================
+   10. Layer workflow and independent ROI navigation
+   Later rules intentionally take precedence over sections 01-09.
+   ========================================================================== */
 
-/* v0.2: preserve the original cards, give them a separate, single-row home. */
+/* Preserve the original cards inside a dedicated, single-row navigation bar. */
 #masthead {
   display: flex;
   max-width: 1190px;
@@ -779,9 +824,12 @@ button:focus-visible,select:focus-visible,input:focus-visible,.tool-card:focus-v
 }
 
 
-/* ═══ 03 · Compact layer cards and interaction refinements ═══ */
+/* ==========================================================================
+   11. Compact layer bar and user interaction
+   Later rules intentionally take precedence over sections 01-09.
+   ========================================================================== */
 
-/* v0.3: compact single-shell layer bar; keep the existing cards unchanged. */
+/* Compact single-shell navigation bar: preserve card semantics and state classes. */
 #layerBar {
   background: transparent;
   border: 0;
@@ -933,10 +981,13 @@ button:focus-visible,select:focus-visible,input:focus-visible,.tool-card:focus-v
 }
 
 
-/* ═══ 04 · Subsequent refinements and final design overrides ═══ */
+/* ==========================================================================
+   12. Consistent editor and download action sizing
+   Later rules intentionally take precedence over sections 01-09.
+   ========================================================================== */
 
-/* v0.5 - Editor- und Exportbuttons identisch mit den Kopf-Buttons dimensionieren.
-   Die Modusfarben, Disabled-Zustaende und bestehenden Hover-Regeln bleiben erhalten. */
+/* Normalize editor/export buttons to the dimensions used in the header.
+   Keep the existing mode colors, disabled states and hover rules. */
 #controls button,
 #downloadFlattenedImageBtn,
 #downloadProjectBtn {
@@ -957,7 +1008,7 @@ button:focus-visible,select:focus-visible,input:focus-visible,.tool-card:focus-v
   border-color: transparent;
 }
 
-/* Der Projekt-Button bleibt bewusst outlined; seine Maße sind dieselben. */
+/* The project ZIP button intentionally keeps an outlined appearance and the same dimensions. */
 
 
 /* Keep the two image-download buttons visually identical, including on narrow screens. */
@@ -980,9 +1031,12 @@ button:focus-visible,select:focus-visible,input:focus-visible,.tool-card:focus-v
   white-space: nowrap;
 }
 
-/* ═══ 05 · Subsequent refinements and final design overrides ═══ */
+/* ==========================================================================
+   13. Final heading and drop-zone refinements
+   Later rules intentionally take precedence over sections 01-09.
+   ========================================================================== */
 
-/* v0.6 - Heading hierarchy and initial file-chooser button. */
+/* Refine heading hierarchy and initial file-chooser styling. */
 #download h3 {
   font-size: 18px;
 }

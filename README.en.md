@@ -64,3 +64,7 @@ Development used AI assistance. See [AI assistance and model attribution](docs/A
 ## JPG export
 
 An additional **Download JPG** button exports the same visible annotations as PNG, optionally cropped to the ROI. Use **Settings → Global · Colors & Export → JPEG compression** for Low, Medium (default), or High compression. JPG fills any transparent pixels with white; PNG remains lossless. See [JPEG export details](docs/JPEG_EXPORT.md).
+
+## Source documentation
+
+See [docs/SOURCE_GUIDE.md](docs/SOURCE_GUIDE.md) for the JSDoc sections, HTML/CSS table of contents, build pipeline, tests and language behavior. A fresh session starts in English; imported projects restore their saved language.

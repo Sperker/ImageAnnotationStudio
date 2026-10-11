@@ -1,12 +1,25 @@
 @echo off
 setlocal EnableExtensions DisableDelayedExpansion
 
+rem ===========================================================================
+rem IMAGE ANNOTATION STUDIO - WINDOWS BUILD AND COMPLETE TEST SUITE
+rem ===========================================================================
+rem Table of contents:
+rem 01. Resolve working directory and locate required tools
+rem 02. Optional one-time Python/Playwright/browser setup
+rem 03. Build the single versioned HTML and execute Node unit tests
+rem 04. Run Smoke and E2E regressions in Chromium, Firefox and WebKit
+rem 05. Print final failure count and pause before closing
+rem ===========================================================================
 rem Image Annotation Studio - Build and complete browser test suite.
 rem Place this file in the project root (next to package.json).
 rem Usage:
 rem   Double-click run-build-and-tests.bat
 rem   run-build-and-tests.bat --setup   (install Python test requirements and browsers)
 
+rem ---------------------------------------------------------------------------
+rem 01. Locate the repository: %~dp0 expands to this batch file's folder.
+rem ---------------------------------------------------------------------------
 pushd "%~dp0"
 if errorlevel 1 (
     echo [ERROR] Cannot open the project folder.
@@ -59,6 +72,9 @@ if not defined PYTHON_CMD (
     goto :summary
 )
 
+rem ---------------------------------------------------------------------------
+rem 02. Install development-only dependencies only if --setup is provided.
+rem ---------------------------------------------------------------------------
 if /i "%~1"=="--setup" (
     echo [SETUP] Installing Python test requirements and browser binaries.
     echo [SETUP] This requires an Internet connection and free disk space.
@@ -71,6 +87,9 @@ if /i "%~1"=="--setup" (
 )
 
 echo.
+rem ---------------------------------------------------------------------------
+rem 03. The build is prerequisite to every test; unit failures are counted.
+rem ---------------------------------------------------------------------------
 echo [BUILD] npm run build
 call npm run build
 if errorlevel 1 (
@@ -101,6 +120,9 @@ if errorlevel 1 (
     goto :summary
 )
 
+rem ---------------------------------------------------------------------------
+rem 04. Run each available browser; count errors without hiding later failures.
+rem ---------------------------------------------------------------------------
 call :test_browser chromium
 call :test_browser firefox
 call :test_browser webkit
@@ -138,6 +160,9 @@ if errorlevel 1 (
 )
 exit /b 0
 
+rem ---------------------------------------------------------------------------
+rem 05. Report all failed stages and keep the Windows console open for review.
+rem ---------------------------------------------------------------------------
 :summary
 set "STUDIO_BROWSER="
 echo.

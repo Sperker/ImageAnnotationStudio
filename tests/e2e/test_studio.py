@@ -1,4 +1,22 @@
-"""Full-product offline browser regression. Run: npm run test:e2e."""
+"""Image Annotation Studio end-to-end regression suite.
+
+Test responsibilities:
+- Launch the actual generated offline HTML in the requested Playwright engine.
+- Reject browser JavaScript errors and outgoing HTTP/HTTPS requests.
+- Verify annotation geometry, history, settings, layer ordering and crop export.
+- Round-trip project ZIPs and reject corrupted or malformed archives atomically.
+- Decode exported PNG/JPEG images to verify pixels, dimensions and quality.
+
+Table of contents:
+01. Local fixtures, synthetic PNG generator and browser setup
+02. Editor interaction, geometry and history tests
+03. Project ZIP, import safety and image-limit tests
+04. JPEG compression, crop, quality and transparency tests
+05. Startup language and project language persistence
+
+Run: npm run build && npm run test:e2e
+Set STUDIO_BROWSER to chromium, firefox or webkit as needed.
+"""
 import io
 import zipfile
 import json
@@ -21,9 +39,19 @@ ENTRY = ROOT / 'dist' / f'Image Annotation Studio v{VERSION_MATCH.group(1)}.html
 ENGINE = os.getenv('STUDIO_BROWSER', 'chromium')
 
 
+# ============================================================================
+# 01. Local fixtures, synthetic PNG generator and browser setup
+# ============================================================================
 def make_png(width=640, height=400):
-    """Small synthetic PNG with no imaging-library dependency."""
+    """Generate a losslessly encoded RGB fixture without Pillow.
+
+    The image is filled with a known gray and assembled from IHDR/IDAT/IEND chunks with valid CRCs.
+    """
     def chunk(kind, body):
+        """Create one CRC-protected PNG chunk.
+
+        Uses network byte order length and CRC32 as required by the PNG specification.
+        """
         return struct.pack('>I', len(body)) + kind + body + struct.pack('>I', zlib.crc32(kind + body) & 0xffffffff)
     raw = b''.join(b'\x00' + (b'\xee\xee\xee' * width) for _ in range(height))
     return b'\x89PNG\r\n\x1a\n' + chunk(b'IHDR', struct.pack('>IIBBBBB', width, height, 8, 2, 0, 0, 0)) + chunk(b'IDAT', zlib.compress(raw)) + chunk(b'IEND', b'')
@@ -32,6 +60,10 @@ def make_png(width=640, height=400):
 class StudioRegression(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        """Launch one Playwright browser for this regression class.
+
+        Choose STUDIO_BROWSER; a system Chromium fallback supports restricted Linux test runners.
+        """
         cls.play = sync_playwright().start()
         browser_type = getattr(cls.play, ENGINE)
         if ENGINE == 'chromium' and Path('/usr/bin/chromium').exists() and not Path(browser_type.executable_path).exists():
@@ -42,10 +74,18 @@ class StudioRegression(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
+        """Close the class browser and Playwright driver.
+
+        Releases operating-system resources after tests finish.
+        """
         cls.browser.close()
         cls.play.stop()
 
     def setUp(self):
+        """Start a fresh isolated browser context for each test.
+
+        Captures page exceptions and external requests and renders the exact built HTML in memory.
+        """
         self.context = self.browser.new_context(accept_downloads=True, viewport={'width': 1280, 'height': 900})
         self.page = self.context.new_page()
         self.errors = []
@@ -56,31 +96,57 @@ class StudioRegression(unittest.TestCase):
         self.page.set_content(ENTRY.read_text(encoding='utf8'), wait_until='load')
 
     def tearDown(self):
+        """Fail the test on JavaScript errors or network requests.
+
+        Always closes the per-test browser context, enforcing offline behavior.
+        """
         self.assertEqual(self.errors, [], 'Unexpected JS errors')
         self.assertEqual(self.external_requests, [], 'Offline build made external requests')
         self.context.close()
 
     def state(self, expr):
+        """Evaluate a read-only expression against the exposed regression state.
+
+        Avoids coupling every assertion to presentation markup.
+        """
         return self.page.evaluate(f'() => {{ const s = window.__studioTest.state; return ({expr}); }}')
 
     def upload(self):
+        """Load the 640x400 synthetic PNG fixture.
+
+        Waits until the browser has decoded and committed the image.
+        """
         self.page.locator('#fileInput').set_input_files({'name': 'sample.png', 'mimeType': 'image/png', 'buffer': make_png()})
         self.page.wait_for_function('window.__studioTest.state.loaded')
         self.assertEqual(self.state('s.img.naturalWidth'), 640)
 
     def click_at(self, x, y):
+        """Click a canvas-relative point in CSS pixels.
+
+        Uses the current bounding box instead of assuming a fixed preview position.
+        """
         box=self.page.locator('#canvas').bounding_box()
         self.page.mouse.click(box['x']+x,box['y']+y)
 
     def drag_at(self, x1,y1,x2,y2):
+        """Perform a multi-step canvas-relative drag.
+
+        Pointer steps exercise gesture handling, selection and history recording.
+        """
         box=self.page.locator('#canvas').bounding_box()
         self.page.mouse.move(box['x']+x1,box['y']+y1)
         self.page.mouse.down()
         self.page.mouse.move(box['x']+x2,box['y']+y2,steps=6)
         self.page.mouse.up()
 
+    # ========================================================================
+    # 02. Editor interaction, geometry and history tests
+    # ========================================================================
     def test_settings_button_sizes_match_editor_without_widening_dialog(self):
-        """Tabs and actions use the established editor button typography and spacing."""
+        """Check settings tabs and actions match toolbar button styling.
+
+        Verifies geometry in DE and EN at fixed 565px modal width, plus narrow mobile containment.
+        """
         self.upload()
         self.page.set_viewport_size({'width': 728, 'height': 800})
         expected=self.page.locator('#standardBtn').evaluate('''(el) => {
@@ -125,8 +191,20 @@ class StudioRegression(unittest.TestCase):
         self.assertTrue(geometry['contained'])
 
     def test_initial_state_and_language(self):
+        """Check English is the fresh default and German remains selectable.
+
+        Asserts initial document locale, language menu state and translated subtitle in both languages.
+        """
         self.assertTrue(self.page.locator('#cont_drop_zone').is_visible())
         self.assertEqual(self.page.locator('#layerContainer').evaluate('(el)=>getComputedStyle(el).display'), 'none')
+        self.assertEqual(self.state('s.lang'), 'en')
+        self.assertEqual(self.page.locator('html').get_attribute('lang'),'en')
+        self.assertIn('Zero-Friction', self.page.locator('#topSubtitle').inner_text())
+        self.assertEqual(self.page.locator('#languageToggle').inner_text().strip(),'EN')
+        self.page.locator('#languageToggle').click()
+        self.page.locator('#languageMenu [data-language="de"]').click()
+        self.assertEqual(self.state('s.lang'), 'de')
+        self.assertIn('Reibungslose', self.page.locator('#topSubtitle').inner_text())
         self.page.locator('#languageToggle').click()
         self.page.locator('#languageMenu [data-language="en"]').click()
         self.assertEqual(self.state('s.lang'), 'en')
@@ -136,6 +214,10 @@ class StudioRegression(unittest.TestCase):
         self.assertEqual(self.state('s.lang'), 'de')
 
     def test_numbering_delete_renumber_and_history(self):
+        """Verify numbered circles remain consecutive after deletion.
+
+        Undo and redo must restore the original numbered sequence and edits.
+        """
         self.upload()
         self.page.locator('[data-layer="numbering"]').click()
         self.click_at(80,80); self.click_at(160,80); self.click_at(240,80)
@@ -149,6 +231,10 @@ class StudioRegression(unittest.TestCase):
         self.assertEqual(self.state('[...s.items.numbering.map(c=>c.number)]'),[1,2])
 
     def test_arrow_move_and_separate_tool_history(self):
+        """Ensure moving an arrow is one undoable action.
+
+        Switching to numbering must not mix its undo history with the arrows tool.
+        """
         self.upload()
         self.click_at(130,130)
         self.assertEqual(self.state('s.items.arrows.length'),1)
@@ -165,6 +251,10 @@ class StudioRegression(unittest.TestCase):
         self.assertGreater(self.state('s.items.arrows[0].x'),old_x+15)
 
     def test_roi_visibility_and_png_original_size(self):
+        """Validate ROI availability and cropped PNG dimensions.
+
+        Hiding the ROI must revoke crop controls while export uses intrinsic source pixels.
+        """
         self.upload()
         self.assertTrue(self.page.locator('#viewCrop').is_disabled())
         self.assertFalse(self.page.locator('#exportCropOption').is_visible())
@@ -189,7 +279,14 @@ class StudioRegression(unittest.TestCase):
         self.assertTrue(self.page.locator('#viewCrop').is_disabled())
         self.assertFalse(self.page.locator('#exportCropOption').is_visible())
 
+    # ========================================================================
+    # 03. Project ZIP, import safety and image-limit tests
+    # ========================================================================
     def test_project_zip_roundtrip_history_and_corrupt_archive(self):
+        """Round-trip visible state, layer order and undo/redo in ZIP.
+
+        A deliberately damaged source image payload must fail CRC verification without losing the open project.
+        """
         self.upload()
         self.click_at(120,130)
         self.page.keyboard.press('Control+z')
@@ -229,6 +326,10 @@ class StudioRegression(unittest.TestCase):
             self.assertTrue(self.state('s.loaded'))
 
     def test_global_settings_local_settings_and_responsive_layout(self):
+        """Exercise palette, tool settings and responsive layout.
+
+        Checks saved settings and UI behavior across viewport sizes.
+        """
         self.upload()
         self.page.locator('#settingsButton').click()
         self.page.locator('#cfg_standardStroke').fill('#223355')
@@ -248,6 +349,10 @@ class StudioRegression(unittest.TestCase):
                 self.assertLessEqual(card.bounding_box()['width'], width)
 
     def test_limits_and_active_mode_keyboard(self):
+        """Verify tool limits and editing-mode keyboard shortcuts.
+
+        Checks active-tool behaviors and safeguards for invalid operations.
+        """
         self.upload()
         self.assertEqual(self.page.locator('#standardBtn').get_attribute('aria-pressed'),'true')
         self.page.keyboard.down('Control')
@@ -263,6 +368,10 @@ class StudioRegression(unittest.TestCase):
         self.assertEqual(self.state('s.items.arrows.length'),old)
 
     def test_keyboard_layer_switch_and_language_menu_accessibility(self):
+        """Verify keyboard-only editing and language navigation.
+
+        Uses layer shortcuts and language menu focus/selection semantics.
+        """
         self.upload()
         card=self.page.locator('[data-layer="numbering"]')
         card.focus()
@@ -273,12 +382,18 @@ class StudioRegression(unittest.TestCase):
         self.page.keyboard.press('ArrowDown')
         self.assertEqual(self.page.locator('#languageToggle').get_attribute('aria-expanded'),'true')
         self.page.keyboard.press('ArrowDown')
+        self.assertEqual(self.page.evaluate('document.activeElement.dataset.language'),'de')
+        self.page.keyboard.press('ArrowUp')
         self.assertEqual(self.page.evaluate('document.activeElement.dataset.language'),'en')
         self.page.keyboard.press('Escape')
         self.assertEqual(self.page.locator('#languageToggle').get_attribute('aria-expanded'),'false')
         self.assertTrue(self.page.locator('#languageToggle').evaluate('(e)=>e===document.activeElement'))
 
     def test_visibility_swap_and_reset_respect_layer_boundaries(self):
+        """Check layer order, visibility and reset independence.
+
+        A change to one tool or visibility control must not mutate a different tool's annotations.
+        """
         self.upload()
         self.click_at(140,140)
         self.page.locator('[data-layer="numbering"]').click()
@@ -298,6 +413,10 @@ class StudioRegression(unittest.TestCase):
         self.assertEqual(self.state('s.items.numbering.length'),1)
 
     def test_invalid_project_import_preserves_settings_and_histories(self):
+        """Reject malformed imported state while preserving the editor.
+
+        Invalid manifests may not overwrite palette, tool histories or annotations.
+        """
         self.upload()
         self.click_at(120,130)
         self.page.keyboard.press('Control+z')
@@ -309,6 +428,10 @@ class StudioRegression(unittest.TestCase):
         self.assertEqual(self.state('s.hist.arrows.redo.length'),1)
 
     def test_image_size_edge_cases_and_reload_warning(self):
+        """Reject oversized images and protect unsaved edits.
+
+        Covers boundary conditions and beforeunload behavior after editing.
+        """
         self.upload()
         self.assertTrue(self.page.evaluate('() => { try {window.__studioTest.checkImageSize(1,1,1);return true;}catch{return false;} }'))
         for dims in [(0,100,50), (100,0,50), (16385,1,50), (100,100,70*1024*1024), (100000,100000,100)]:
@@ -320,7 +443,14 @@ class StudioRegression(unittest.TestCase):
         self.page.keyboard.press('Control+z')
         self.assertTrue(self.state('s.dirty'))
 
+    # ========================================================================
+    # 04. JPEG compression, crop, quality and transparency tests
+    # ========================================================================
     def test_jpg_and_png_buttons_export_original_dimensions(self):
+        """Download PNG and JPEG from the same source image.
+
+        Verify actual file signatures, names and intrinsic dimensions, including browser JPEG decoding.
+        """
         self.upload()
         self.assertTrue(self.page.locator('#downloadFlattenedImageBtn').is_visible())
         self.assertTrue(self.page.locator('#downloadJpgBtn').is_visible())
@@ -349,6 +479,10 @@ class StudioRegression(unittest.TestCase):
         }""",jpg_base64),[640,400])
 
     def test_jpeg_compression_settings_and_roi_export(self):
+        """Exercise all JPEG compression settings and ROI-only JPEG.
+
+        Intercepts canvas.toBlob to confirm quality hints, then decodes the cropped JPEG and tests reset.
+        """
         self.upload()
         self.assertEqual(self.state('s.jpegCompression'),'medium')
         self.page.locator('#settingsButton').click()
@@ -396,6 +530,10 @@ class StudioRegression(unittest.TestCase):
         self.assertEqual(self.state('s.jpegCompression'),'medium')
 
     def test_jpeg_compression_project_roundtrip_legacy_and_invalid(self):
+        """Persist JPEG quality in ZIP and handle backward compatibility.
+
+        High quality round-trips; older ZIPs default to Medium; malformed settings are rejected.
+        """
         self.upload()
         self.page.locator('#settingsButton').click()
         self.page.locator('#cfg_jpegCompression').select_option('high')
@@ -420,6 +558,10 @@ class StudioRegression(unittest.TestCase):
         # Older version-1 ZIPs omit this optional setting; they must default to Medium.
         old=json.loads(json.dumps(doc));del old['state']['export']['jpegCompression']
         def repack(payload):
+            """Rebuild an uncompressed project ZIP around the supplied manifest.
+
+            Keeps the original image bytes so tests can isolate manifest validation.
+            """
             stream=io.BytesIO()
             with zipfile.ZipFile(stream,'w',compression=zipfile.ZIP_STORED) as z:
                 z.writestr('project.json',json.dumps(payload))
@@ -435,6 +577,10 @@ class StudioRegression(unittest.TestCase):
         self.assertEqual(self.state('s.jpegCompression'),'medium')
 
     def test_jpg_transparent_pixels_are_white(self):
+        """Ensure transparent PNG pixels become white in JPEG.
+
+        Decodes the emitted JPEG and samples a transparent area, allowing small lossy-color tolerances.
+        """
         self.upload()
         # Reuse synthetic browser-generated transparent image (white comp under JPEG).
         rgba=self.page.evaluate("""() => {
@@ -456,6 +602,42 @@ class StudioRegression(unittest.TestCase):
             return [...ctx.getImageData(15,12,1,1).data];
         }""",data)
         self.assertTrue(all(x>=246 for x in rgb[:3]),rgb)
+
+    # ========================================================================
+    # 05. Startup language and project language persistence
+    # ========================================================================
+    def test_saved_german_project_restores_language_after_english_startup(self):
+        """Ensure a German project ZIP overrides the English startup default.
+
+        Saves a project in German, starts a new isolated English browser document,
+        and imports the ZIP to restore German as recorded in its manifest.
+        """
+        self.assertEqual(self.state('s.lang'),'en')
+        self.upload()
+        self.page.locator('#languageToggle').click()
+        self.page.locator('#languageMenu [data-language="de"]').click()
+        self.assertEqual(self.state('s.lang'),'de')
+        with self.page.expect_download() as item:
+            self.page.locator('#downloadProjectBtn').click()
+        with tempfile.TemporaryDirectory() as directory:
+            saved=Path(directory)/'german_project.zip'
+            item.value.save_as(saved)
+            payload=saved.read_bytes()
+        with zipfile.ZipFile(io.BytesIO(payload)) as archive:
+            manifest=json.loads(archive.read('project.json'))
+        self.assertEqual(manifest['state']['lang'],'de')
+        # Navigate to a genuinely fresh document; a new project preserves an
+        # existing manual language choice and therefore is not an equivalent reset.
+        self.page.goto('about:blank')
+        self.page.set_content(ENTRY.read_text(encoding='utf8'), wait_until='load')
+        self.assertEqual(self.state('s.lang'),'en')
+        self.page.locator('#fileInput').set_input_files({
+            'name':'german_project.zip', 'mimeType':'application/zip', 'buffer':payload
+        })
+        self.page.wait_for_function('window.__studioTest.state.loaded')
+        self.assertEqual(self.state('s.lang'),'de')
+        self.assertEqual(self.page.locator('html').get_attribute('lang'),'de')
+        self.assertEqual(self.page.locator('#languageToggle').inner_text().strip(),'DE')
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)

@@ -1,3 +1,10 @@
+# Image Annotation Studio - Continuous Integration
+# Table of contents:
+# 01. Trigger on code changes or manual requests
+# 02. Matrix across Chromium, Firefox and WebKit
+# 03. Compile offline HTML, run unit tests, install browser fixtures
+# 04. Smoke and full E2E regressions with per-browser failure reporting
+# This workflow installs tools only in CI; the distributed HTML remains offline.
 name: Tests and offline build
 on:
   push:

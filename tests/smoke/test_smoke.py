@@ -1,4 +1,13 @@
-"""Fast offline browser smoke checks (requires Playwright)."""
+"""Fast offline browser smoke checks (requires Playwright).
+
+Table of contents:
+01. Start the bundled HTML without network access
+02. Upload a synthetic PNG and switch among all three annotation tools
+03. Verify both PNG and JPEG export controls are present
+
+Run after the build: npm run test:smoke
+The STUDIO_BROWSER environment variable selects Chromium, Firefox or WebKit.
+"""
 import unittest
 from pathlib import Path
 from playwright.sync_api import sync_playwright
@@ -6,8 +15,17 @@ import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "e2e"))
 from test_studio import ENTRY, make_png, ENGINE
 
+# ============================================================================
+# 01-03. Bundled startup, upload, tool navigation and export controls
+# ============================================================================
 class Smoke(unittest.TestCase):
     def test_start_upload_switch_and_export_controls(self):
+        """Smoke-test a fresh offline launch and the critical export controls.
+
+        Load the generated HTML in memory, reject JS errors/external requests,
+        validate English startup, upload a PNG, cycle through all layer tools,
+        and confirm PNG/JPEG buttons are visible.
+        """
         with sync_playwright() as p:
             browser_type = getattr(p, ENGINE)
             if ENGINE == 'chromium' and Path('/usr/bin/chromium').exists() and not Path(browser_type.executable_path).exists():
@@ -21,6 +39,7 @@ class Smoke(unittest.TestCase):
                 page.on('request', lambda r: requests.append(r.url) if r.url.startswith(('http:', 'https:')) else None)
                 page.set_content(ENTRY.read_text(encoding='utf8'), wait_until='load')
                 self.assertTrue(page.locator('#cont_drop_zone').is_visible())
+                self.assertEqual(page.locator('html').get_attribute('lang'), 'en')
                 page.locator('#fileInput').set_input_files({'name':'smoke.png','mimeType':'image/png','buffer':make_png(32,32)})
                 page.wait_for_function('window.__studioTest.state.loaded')
                 for layer in ('arrows','numbering','roi'):

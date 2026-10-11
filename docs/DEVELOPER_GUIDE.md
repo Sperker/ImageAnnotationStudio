@@ -43,3 +43,7 @@ Named functions carry a short description and parameter annotations; core applic
 Change only the value of `<meta name="studio-version" content="01.0">` in `src/template.html` to version the standalone HTML build. `scripts/build.mjs` reads and validates that field, inserts it into the generated HTML `<title>`, and writes `dist/Image Annotation Studio v<version>.html`. The source template is authoritative; do not hardcode the release filename in tests or batch scripts.
 
 The `package.json` version follows npm's semantic-version format for repository metadata and is not used to name the HTML artifact. Release managers should update it when preparing a new published project release.
+
+## Navigating the documented source files
+
+See [SOURCE_GUIDE.md](SOURCE_GUIDE.md) for numbered file and section maps, detailed JSDoc contracts, annotated build and test scripts, the non-commentable JSON configuration schema and the English startup language contract.

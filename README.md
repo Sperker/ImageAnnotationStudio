@@ -43,3 +43,7 @@ This project was built with AI-assisted development. See [AI assistance and mode
 ## Windows one-click build and tests
 
 Run `run-build-and-tests.bat` from the repository root. For a first-time test setup, use `run-build-and-tests.bat --setup` in a terminal; this installs Playwright and browser engines (requires Internet). See [the Windows test guide](docs/WINDOWS_BUILD_AND_TESTS.md).
+
+### Source documentation
+
+Detailed function contracts, code navigation and an explanation of the build and test source files are available in [docs/SOURCE_GUIDE.md](docs/SOURCE_GUIDE.md). The program starts in English; German remains selectable, and imported projects restore their saved language.
